@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-import test_ai  # Importing the mathematical models from the previous file
+import tests.test_ai as test_ai  # Importing the mathematical models from the previous file
 
 def generate_text_embeddings(texts, calibration_texts, dim=384):
     """
