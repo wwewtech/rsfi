@@ -1,4 +1,3 @@
-
 ### Список литературы к разделу 2:
 
 1. Su J., Cao J., Liu W., Ou Y. Whitening Sentence Representations for Better Semantics // *Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics (ACL/IJCNLP 2021)*. — 2021. — Pp. 2136–2141. — DOI: `10.18653/v1/2021.acl-long.166`.
@@ -8,7 +7,7 @@
 5. Ethayarajh K. How Contextual are Contextualized Word Representations? Comparing the Geometry of BERT, ELMo, and GPT-2 Embeddings // *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP 2019)*. — 2019. — Pp. 55–65. — DOI: `10.18653/v1/D19-1006`.
 
 
----
+
 
 ## 6. Полный библиографический список
 
@@ -36,7 +35,7 @@
 20. **Zhao, Y.**, Yang, B., & Wang, H. (2025). LLMs Encode Harmfulness and Refusal Separately: Geometric Insights for Precise Alignment. *arXiv preprint arXiv:2501.18567*. https://arxiv.org/abs/2501.18567
 21. **Chavan, V.**, & Kulkarni, A. (2025). Manifold-Constrained Sentence Embeddings via Triplet Loss: Projecting Semantics onto Spheres, Tori, and Möbius Strips. *arXiv preprint arXiv:2505.01234*. https://arxiv.org/abs/2505.01234
 
----
+
 
 ### Индустриальные фреймворки и документация продакшен-систем
 
@@ -47,7 +46,7 @@
 26. **OpenAI.** (2023–2026). *OpenAI Moderation API Reference Guide*. OpenAI Platform Documentation. https://platform.openai.com/docs/guides/moderation
 27. **.TXT / Normal Computing.** (2024–2026). *Outlines: Structured Text Generation and Output Control for LLMs*. GitHub Repository Documentation. https://github.org/dottxt-ai/outlines
 
----
+
 
 ### Исследования сообщества, препринты и блоги
 
