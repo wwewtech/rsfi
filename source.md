@@ -7,10 +7,6 @@
 5. Ethayarajh K. How Contextual are Contextualized Word Representations? Comparing the Geometry of BERT, ELMo, and GPT-2 Embeddings // *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP 2019)*. — 2019. — Pp. 55–65. — DOI: `10.18653/v1/D19-1006`.
 
 
-
-
-## 6. Полный библиографический список
-
 ### Академические статьи и препринты (arXiv, NeurIPS, ACL, EMNLP, IEEE)
 
 1. **Zou, A.**, Phan, L., Chen, S., Campbell, J., Guo, P., Ren, R., Pan, A., Yin, X., Mazeika, M., Dombrowski, A. K., Goel, S., Li, N., Byun, M. J., Wang, Z., Mallen, A., Basart, S., Koyejo, S., Song, D., Fredrikson, M., Kolter, J. Z., & Hendrycks, D. (2023). Representation Engineering: A Top-Down Approach to AI Transparency. *arXiv preprint arXiv:2310.01405*. https://doi.org/10.48550/arXiv.2310.01405
@@ -57,7 +53,6 @@
 32. **Turner, A.**, & Smith, L. (2024). *Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors*. LessWrong Sequences on AI Alignment. https://www.lesswrong.com/posts/steering-vectors-llm
 
 
-### 6. Полный библиографический список
 
 #### Академические статьи и препринты (arXiv, NeurIPS, ACL, EMNLP, ICLR, IEEE)
 
