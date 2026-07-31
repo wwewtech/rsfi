@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy scipy scikit-learn matplotlib
+          pip install -r requirements.txt
 
       - name: Run Test 1 (Basic Drift & Accuracy)
         run: python tests/test_ai.py
