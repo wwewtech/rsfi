@@ -1,0 +1,37 @@
+name: CI RSFI Mathematical Benchmarks & Verification
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy scikit-learn matplotlib
+
+      - name: Run Test 1 (Basic Drift & Accuracy)
+        run: python tests/test_ai.py
+
+      - name: Run Test 2 (10-Stage ZCA vs PCA & Latency Benchmark)
+        run: python tests/test2_aai.py
+
+      - name: Run Test 3 (Dynamic Context Drift Simulation)
+        run: python tests/test3_advanced.py
+
+      - name: Run Test 4 (k-Subspace Threat Decoupling & Zero-Day Detection)
+        run: python tests/test4_subspace.py
