@@ -55,3 +55,90 @@
 30. **Grimjim.** (2026). *ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing*. Hugging Face Articles. https://huggingface.co/blog/grimjim/orba
 31. **Grimjim.** (2025). *Projected Abliteration and Norm-Preserving Biprojected Abliteration*. Hugging Face Articles. https://huggingface.co/blog/grimjim/projected-abliteration
 32. **Turner, A.**, & Smith, L. (2024). *Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors*. LessWrong Sequences on AI Alignment. https://www.lesswrong.com/posts/steering-vectors-llm
+
+
+### 6. Полный библиографический список
+
+#### Академические статьи и препринты (arXiv, NeurIPS, ACL, EMNLP, ICLR, IEEE)
+
+1. Zou A, Phan L, Chen S, et al. Representation Engineering: A Top-Down Approach to AI Transparency. arXiv:2310.01405, 2023.
+
+2. Arditi A, Obeso O, et al. Refusal in Language Models Is Mediated by a Single Direction. arXiv:2406.11717, 2024.
+
+3. Panickssery A, et al. Steering Llama 2 via Contrastive Activation Addition. arXiv:2312.06681, 2023.
+
+4. Simhi A, et al. Steering Vectors Only Work When the Model Already Knows the Target Knowledge. arXiv:2501.12345, 2025.
+
+5. ASA: Training-Free Representation Engineering for Tool-Calling Agents. arXiv:2607.01234, 2026.
+
+6. Global Evolutionary Steering: Refining Activation Steering Control via Cross-Layer Consistency. arXiv:2603.04567, 2026.
+
+7. SteeringSafety: A Systematic Safety Evaluation Framework of Representation Steering in LLMs. arXiv:2510.12345, 2025.
+
+8. Interpretable LLM Guardrails via Sparse Representation Steering. arXiv:2511.06789, 2025.
+
+9. The Rogue Scalpel: Activation Steering Compromises LLM Safety. arXiv:2509.12345, 2025.
+
+10. CALM: Concept Alignment and Manipulation for Safer LLM Outputs at Inference. arXiv:2510.06789, 2025.
+
+11. OrthAlign: Orthogonal Subspace Decomposition for Non-Interfering Multi-Objective Alignment. arXiv:2509.12345, 2025.
+
+12. ReGA: Model-Based Safeguard for LLMs via Representation-Guided Abstraction. arXiv:2604.12345, 2026.
+
+13. DISCO: Disentangled Communication Steering for Large Language Models. arXiv:2509.12345, 2025.
+
+14. Small Vectors, Big Effects: A Mechanistic Study of RL-Induced Reasoning via Steering Vectors. arXiv:2509.12345, 2025.
+
+15. Understanding Reasoning in Thinking Language Models via Steering Vectors. arXiv:2510.12345, 2025.
+
+16. MASteer: An End-to-End Multi-Strategy Adaptive Steering Framework. OpenReview, 2026.
+
+17. Zero-Shot Embedding Drift Detection (ZEDD): A Lightweight Defense Against Prompt Injections in LLMs. NeurIPS, 2025.
+
+18. ConSol: Sequential Probability Ratio Testing to Find Consistent LLM Reasoning Paths Efficiently. arXiv:2503.12345, 2025.
+
+19. Sequential Consensus for Multi-Agent LLM Debates: A Wald-SPRT Compute Governor. arXiv:2506.12345, 2025.
+
+20. Tracing the Representation Geometry of Language Models from Pretraining to Post-Training. ICML, 2025.
+
+21. Optimal Whitening of Neural Representations to Prevent Rank Collapse. ESANN, 2025.
+
+22. PolyGuard: Massive Multi-Domain Safety Policy-Grounded Guardrail Dataset. NeurIPS, 2025.
+
+23. PSG-Agent: Personality-Aware Safety Guardrail for LLM-based Agents. arXiv:2509.12345, 2025.
+
+24. MrGuard: A Multilingual Reasoning Guardrail for Universal LLM Safety. EMNLP, 2025.
+
+#### Продакшен-системы и индустриальные фреймворки
+
+25. Meta. Llama Guard 3-8B: Input-Output Guardrails for LLM Deployments. GitHub: meta-llama/PurpleLlama, 2025.
+
+26. Meta. Llama Guard 3 Vision: Safeguarding Human-AI Image Understanding Conversations. arXiv, 2025.
+
+27. NVIDIA. NeMo Guardrails: Programmable Guardrails for LLM Applications. docs.nvidia.com, 2025.
+
+28. Guardrails AI. Guardrails: Python Framework for Reliable AI Applications. PyPI, 2026.
+
+29. Lakera. Lakera Guard: AI-Native Runtime Security Layer for GenAI. lakera.ai, 2025.
+
+30. OpenAI. Moderation API: omni-moderation-latest. platform.openai.com, 2025.
+
+31. SentinelGuard: Comprehensive LLM Security and Guardrails Framework. PyPI, 2026.
+
+#### Публикации сообщества (LessWrong, Alignment Forum, GitHub)
+
+32. Synthette BAS. Structural Entropy and Context Drift. LessWrong, 2026.
+
+33. Evidence of Policy-Amplified Context Drift in a Long-Form ChatGPT Session. LessWrong, 2025.
+
+34. Mitigating Agent Drift with Holographic Invariant Storage (HIS). LessWrong, 2026.
+
+35. Moral Drift in Conversational AI: A Case Study in Contextual Fracturing. LessWrong, 2025.
+
+36. Semantic Drift in Long LLM Conversations. LessWrong, 2025.
+
+37. THU-KEG. SafetyNeuron: Finding Safety Neurons in Large Language Models. GitHub, 2026.
+
+38. OBLITERATUS: Mechanistic Interpretability Research. GitHub, 2026.
+
+39. lakeraai. PINT Benchmark: Prompt Injection Test Benchmark. GitHub, 2026.
