@@ -1,6 +1,6 @@
 <div align="center">
   
-# 🛡️ RSFI: Riemannian System Fidelity Index 🌐
+# RSFI - Riemannian System Fidelity Index
 
 **A Method for Dynamic Control of Semantic Drift and Sycophancy in Large Language Models Based on Non-Euclidean Geometry**
 
