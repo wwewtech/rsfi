@@ -36,21 +36,29 @@ RSFI (Riemannian System Fidelity Index) работает иначе. Это ал
 1. **Сферическое обеливание (ZCA Whitening)**
    Трансформируем пространство эмбеддингов. Анизотропия уходит, а исходная ориентация векторов остается:
 
-   $$\mathbf{y} = \mathbf{W}_{zca} (\mathbf{E} - \boldsymbol{\mu}), \quad \mathbf{W}_{zca} = \mathbf{U} \boldsymbol{\Lambda}^{-1/2} \mathbf{U}^T$$
+   $$
+   \mathbf{y} = \mathbf{W}_{zca} (\mathbf{E} - \boldsymbol{\mu}), \quad \mathbf{W}_{zca} = \mathbf{U} \boldsymbol{\Lambda}^{-1/2} \mathbf{U}^T
+   $$
 
 2. **Перенос в касательное пространство $T_S \mathbb{S}^{d-1}$**
    Применяем риманов логарифмический оператор $\text{Log}_S(\mathbf{y})$ в точке системного якоря $S$:
 
-   $$\mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mathbf{y} - S \cos \theta\bigr), \quad \text{где } \theta = \arccos(\langle S, \mathbf{y} \rangle)$$
+   $$
+   \mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mathbf{y} - S \cos \theta\bigr), \quad \text{где } \theta = \arccos(\langle S, \mathbf{y} \rangle)
+   $$
 
 3. **Ортогональный базис угрозы**
    Процессом Грама — Шмидта отсекаем от вектора угрозы ту часть, которая ортогональна системному правилу:
 
-   $$\mathbf{e}_{thr} = \frac{\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}}{\|\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}\|}$$
+   $$
+   \mathbf{e}_{thr} = \frac{\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}}{\|\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}\|}
+   $$
 
 4. **Целевой функционал RSFI**
 
-   $$\text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r)$$
+   $$
+   \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r)
+   $$
 
    Как только значение $\text{RSFI}(r)$ пробивает порог $\tau$ вниз, API-шлюз обрывает генерацию ответа.
 
