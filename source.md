@@ -63,16 +63,3 @@
 50. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
 51. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
 52. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/
-
----
-**Исключенные источники:**
-В ходе верификации были исключены следующие источники из-за невозможности подтвердить их существование в виде реальных академических работ, отсутствия точной ссылки или из-за дублирования:
-* Дубликаты (статьи Ethayarajh, Su, повторяющиеся упоминания Llama Guard и NeMo Guardrails и др.)
-* "Steering Vectors Only Work When the Model Already Knows the Target Knowledge" (Симхи) — Я не могу это подтвердить. Это концепция, а не статья.
-* "Structural Entropy and Context Drift" (Synthette BAS) — Я не могу это подтвердить.
-* "Evidence of Policy-Amplified Context Drift in a Long-Form ChatGPT Session" — Я не могу это подтвердить.
-* "Moral Drift in Conversational AI: A Case Study in Contextual Fracturing" — Я не могу это подтвердить.
-* "Semantic Drift in Long LLM Conversations" — Я не могу это подтвердить.
-* "MASteer: An End-to-End Multi-Strategy Adaptive Steering Framework" — Я не могу это подтвердить (упоминается на OpenReview, но точной постоянной ссылки найти не удалось, поэтому исключено).
-* "Optimal Whitening of Neural Representations to Prevent Rank Collapse" (Kudriashov) — Я не могу это подтвердить (не найдено прямого URL на PDF-документ).
-* "Mitigating Agent Drift with Holographic Invariant Storage (HIS)" (Scrivens) — Я не могу это подтвердить (отсутствует точный идентификатор arXiv или прямая ссылка).
