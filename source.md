@@ -41,25 +41,38 @@
 34. Sinii, V., et al. (2025). Small Vectors, Big Effects: A Mechanistic Study of RL-Induced Reasoning via Steering Vectors. *NeurIPS 2025 Mechanistic Interpretability Workshop*. Ссылка: https://arxiv.org/abs/2509.06608
 35. Venhoff, C., Nanda, N., et al. (2025). Understanding Reasoning in Thinking Language Models via Steering Vectors. Ссылка: https://arxiv.org/abs/2506.18167
 36. Li, M. Z., et al. (2025). Tracing the Representation Geometry of Language Models from Pretraining to Post-Training. Ссылка: https://openreview.net/forum?id=Ax2yRhCQr1
-37. Kang, M., et al. (2025). PolyGuard: Massive Multi-Domain Safety Policy-Grounded Guardrail Dataset. *NeurIPS 2025*. Ссылка: https://neurips.cc/
-38. Wu, Y., et al. (2025). PSG-Agent: Personality-Aware Safety Guardrail for LLM-based Agents. *arXiv preprint arXiv:2509.23614*. Ссылка: https://arxiv.org/abs/2509.23614
-39. Yang, Y., et al. (2025). MrGuard: A Multilingual Reasoning Guardrail for Universal LLM Safety. *EMNLP 2025*. Ссылка: https://arxiv.org/abs/2504.15241
-40. THU-KEG. (2025). SafetyNeuron: Finding Safety Neurons in Large Language Models. *NeurIPS 2025*. Ссылка: https://github.com/THU-KEG/SafetyNeuron
+37. MASteer: Multi-Agent Adaptive Steer Strategy for End-to-End LLM Trustworthiness Repair. *arXiv preprint arXiv:2508.06963*. Ссылка: https://arxiv.org/abs/2508.06963
+38. Kudriashov, S. (2025). Optimal Whitening of Neural Representations to Prevent Rank Collapse. Master's thesis, HSE University. Ссылка: https://www.hse.ru/en/edu/vkr/1054020602
+39. Scrivens, A. (2026). Design-Time Safety Contracts via Vector Symbolic Architectures (Holographic Invariant Storage). *arXiv preprint arXiv:2603.13558*. Ссылка: https://arxiv.org/abs/2603.13558
+40. Kang, M., et al. (2025). PolyGuard: Massive Multi-Domain Safety Policy-Grounded Guardrail Dataset. *NeurIPS 2025*. Ссылка: https://neurips.cc/
+41. Wu, Y., et al. (2025). PSG-Agent: Personality-Aware Safety Guardrail for LLM-based Agents. *arXiv preprint arXiv:2509.23614*. Ссылка: https://arxiv.org/abs/2509.23614
+42. Yang, Y., et al. (2025). MrGuard: A Multilingual Reasoning Guardrail for Universal LLM Safety. *EMNLP 2025*. Ссылка: https://arxiv.org/abs/2504.15241
+43. THU-KEG. (2025). SafetyNeuron: Finding Safety Neurons in Large Language Models. *NeurIPS 2025*. Ссылка: https://github.com/THU-KEG/SafetyNeuron
 
 ### Раздел 3: Индустриальные фреймворки и документация продакшен-систем
 
-41. Guardrails AI. Guardrails AI Python Framework & Hub Validator Ecosystem. Ссылка: https://www.guardrailsai.com/docs
-42. Lakera AI. Lakera Guard: Real-time API Guardrail for Prompt Injection and Data Leakage Defense. Ссылка: https://www.lakera.ai/docs
-43. OpenAI. OpenAI Moderation API Reference Guide. Ссылка: https://platform.openai.com/docs/guides/moderation
-44. .TXT / Normal Computing. Outlines: Structured Text Generation and Output Control for LLMs. Ссылка: https://github.com/dottxt-ai/outlines
-45. SentinelGuard (sentinel-ai). Lightweight Security Framework for LLMs. Ссылка: https://github.com/MaxwellCalkin/sentinel-ai
-46. Lakera AI. PINT Benchmark: Prompt Injection Test Benchmark. Ссылка: https://github.com/lakeraai/PINT
-47. OBLITERATUS: Mechanistic Interpretability Research Toolkit. Ссылка: https://github.com/elder-plinius/OBLITERATUS
+44. Guardrails AI. Guardrails AI Python Framework & Hub Validator Ecosystem. Ссылка: https://www.guardrailsai.com/docs
+45. Lakera AI. Lakera Guard: Real-time API Guardrail for Prompt Injection and Data Leakage Defense. Ссылка: https://www.lakera.ai/docs
+46. OpenAI. OpenAI Moderation API Reference Guide. Ссылка: https://platform.openai.com/docs/guides/moderation
+47. .TXT / Normal Computing. Outlines: Structured Text Generation and Output Control for LLMs. Ссылка: https://github.com/dottxt-ai/outlines
+48. SentinelGuard (sentinel-ai). Lightweight Security Framework for LLMs. Ссылка: https://github.com/MaxwellCalkin/sentinel-ai
+49. Lakera AI. PINT Benchmark: Prompt Injection Test Benchmark. Ссылка: https://github.com/lakeraai/PINT
+50. OBLITERATUS: Mechanistic Interpretability Research Toolkit. Ссылка: https://github.com/elder-plinius/OBLITERATUS
 
 ### Раздел 4: Исследования сообщества, блоги и статьи (Hugging Face, Alignment Forum, и т.д.)
 
-48. Labonne, M. (2024). Uncensor any LLM with abliteration. *Hugging Face Technical Blog*. Ссылка: https://huggingface.co/blog/mlabonne/abliteration
-49. Arditi, A., & Obeso, O. (2023). Refusal mechanisms: initial experiments with Llama-2-7b-chat. *AI Alignment Forum*. Ссылка: https://www.alignmentforum.org/posts/refusal-mechanisms-llama-2
-50. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
-51. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
-52. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/
+51. Labonne, M. (2024). Uncensor any LLM with abliteration. *Hugging Face Technical Blog*. Ссылка: https://huggingface.co/blog/mlabonne/abliteration
+52. Arditi, A., & Obeso, O. (2023). Refusal mechanisms: initial experiments with Llama-2-7b-chat. *AI Alignment Forum*. Ссылка: https://www.alignmentforum.org/posts/refusal-mechanisms-llama-2
+53. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
+54. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
+55. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/
+
+---
+**Исключенные источники:**
+В ходе верификации были исключены следующие источники из-за невозможности подтвердить их существование в виде реальных академических работ:
+* Дубликаты (статьи Ethayarajh, Su, повторяющиеся упоминания Llama Guard и NeMo Guardrails и др.)
+* "Steering Vectors Only Work When the Model Already Knows the Target Knowledge" (Симхи) — Я не могу это подтвердить. Это широко обсуждаемая концепция, но отдельной исследовательской статьи с таким точным названием от данного автора не существует в проверяемых научных базах (arXiv/ACL/NeurIPS).
+* "Structural Entropy and Context Drift" (Synthette BAS) — Я не могу это подтвердить. Термин является комбинацией разрозненных понятий и не соответствует реальной академической работе.
+* "Evidence of Policy-Amplified Context Drift in a Long-Form ChatGPT Session" — Я не могу это подтвердить.
+* "Moral Drift in Conversational AI: A Case Study in Contextual Fracturing" — Я не могу это подтвердить.
+* "Semantic Drift in Long LLM Conversations" — Я не могу это подтвердить. Является концептуальным обсуждением, а не конкретным научным трудом.
