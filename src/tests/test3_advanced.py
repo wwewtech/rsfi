@@ -1,9 +1,10 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-try:
-    import src.tests.test_ai as test_ai
-except ImportError:
-    import tests.test_ai as test_ai
+import src.tests.test_ai as test_ai
 
 def generate_text_embeddings(texts, calibration_texts, dim=384):
     """
