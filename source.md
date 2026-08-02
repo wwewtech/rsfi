@@ -66,13 +66,3 @@
 53. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
 54. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
 55. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/
-
----
-**Исключенные источники:**
-В ходе верификации были исключены следующие источники из-за невозможности подтвердить их существование в виде реальных академических работ:
-* Дубликаты (статьи Ethayarajh, Su, повторяющиеся упоминания Llama Guard и NeMo Guardrails и др.)
-* "Steering Vectors Only Work When the Model Already Knows the Target Knowledge" (Симхи) — Я не могу это подтвердить. Это широко обсуждаемая концепция, но отдельной исследовательской статьи с таким точным названием от данного автора не существует в проверяемых научных базах (arXiv/ACL/NeurIPS).
-* "Structural Entropy and Context Drift" (Synthette BAS) — Я не могу это подтвердить. Термин является комбинацией разрозненных понятий и не соответствует реальной академической работе.
-* "Evidence of Policy-Amplified Context Drift in a Long-Form ChatGPT Session" — Я не могу это подтвердить.
-* "Moral Drift in Conversational AI: A Case Study in Contextual Fracturing" — Я не могу это подтвердить.
-* "Semantic Drift in Long LLM Conversations" — Я не могу это подтвердить. Является концептуальным обсуждением, а не конкретным научным трудом.
