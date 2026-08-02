@@ -11,6 +11,12 @@ from rsfi.engine import (
     SentenceTelemetry,
     BenchmarkSummary,
 )
+from rsfi.benchmarks.wildchat_10k import (
+    WildChatBenchmarkRunner,
+    WildPromptSample,
+    WildEvaluationTelemetry,
+    WildBenchmarkReport,
+)
 
 __version__ = "0.1.0"
 __all__ = [
@@ -22,4 +28,8 @@ __all__ = [
     "SFIBenchmarkRunner",
     "SentenceTelemetry",
     "BenchmarkSummary",
+    "WildChatBenchmarkRunner",
+    "WildPromptSample",
+    "WildEvaluationTelemetry",
+    "WildBenchmarkReport",
 ]
