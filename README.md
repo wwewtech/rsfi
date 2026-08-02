@@ -1,149 +1,24 @@
-# RSFI — Riemannian System Fidelity Index 🛡️🌐
+<div align="center">
+  
+# 🛡️ RSFI: Riemannian System Fidelity Index 🌐
 
-> **Метод динамического контроля семантического дрейфа и сикофантии больших языковых моделей на основе неевклидовой геометрии и Риманова индекса системной лояльности**
+<p align="center">
+  <a href="README_EN.md"><strong>🇺🇸 English Version</strong></a> &nbsp; | &nbsp; <a href="README_RU.md"><strong>🇷🇺 Русская Версия</strong></a>
+</p>
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![License MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<p align="center">
+  <b>A Method for Dynamic Control of Semantic Drift and Sycophancy in Large Language Models<br>Based on Non-Euclidean Geometry and ZCA Whitening</b>
+</p>
+
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![License MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Zero-Shot Protection](https://img.shields.io/badge/Security-Zero--Shot%20Black--Box-brightgreen.svg)]()
 [![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-%3C%2010%20ms%20(Real--Time)-orange.svg)]()
-[![Geometry Riemannian](https://img.shields.io/badge/Geometry-Riemannian%20%F0%9D%9D%A2%5EB%7Bd--1%7D-purple.svg)]()
-[![JailbreakBench Validated](https://img.shields.io/badge/Validation-JailbreakBench%20NeurIPS%202024-red.svg)]()
+[![Open Science](https://img.shields.io/badge/Open%20Science-Validated-blueviolet.svg)]()
 
----
+<br>
 
-## 📌 Описание проекта
+*This repository contains the official implementation, benchmarks, telemetry data, and mathematical proofs for the RSFI algorithm.*<br>
+*Please choose your preferred language above to read the full documentation.*
 
-Внедрение LLM в финансы или юриспруденцию упирается в уязвимости. Нейросети склонны к сикофантии — они легко подстраиваются под вредоносный контекст. А от прямых атак, вроде Jailbreak и Prompt Injection, их приходится защищать костылями.
-
-Текущие методы либо требуют доступа к весам модели (White-Box), либо тормозят систему. Классификаторы вроде Meta Llama Guard добавляют 100–200 мс задержки. Если брать быстрые алгоритмы на косинусном сходстве, вылезает другая проблема — пространственная анизотропия. Векторы сбиваются в «семантический конус», и система блокирует безопасные запросы.
-
-RSFI (Riemannian System Fidelity Index) работает иначе. Это алгоритм динамического контроля на уровне API-шлюза (Black-Box). Он ловит контекстный дрейф на лету. Внутри — геометрия единичной гиперсферы $\mathbb{S}^{d-1}$, сферическое обеливание (ZCA Whitening) и ортогональное проецирование в касательном пространстве $T_S \mathbb{S}^{d-1}$.
-
----
-
-## 🔥 Ключевые преимущества
-
-- ⚡ **Задержка < 10 мс**. Расчет индекса для одного вектора занимает 21 микросекунду. Это 47 000 проверок в секунду. Инференс не провисает.
-- 🛡️ **Zero-Shot & Black-Box API Protection**. Не лезем в веса LLM. Не дообучаем сторонние дискриминаторы.
-- 📐 **Отсутствие «семантического конуса»**. Сферическое обеливание (ZCA) выравнивает скоррелированные векторы и решает проблему пространственной анизотропии.
-- 🎯 **Точная развязка контекста**. Отделяем полезную семантику от угрозы с помощью ортогонализации Грама — Шмидта.
-- 🪐 **Детекция Zero-Day атак**. Вывод в $k$-мерное ортонормированное подпространство позволяет блокировать новые шаблоны атак, которых алгоритм раньше не видел.
-
----
-
-## 📐 Математический фундамент
-
-**1. Сферическое обеливание (ZCA Whitening)**
-Трансформируем пространство эмбеддингов. Анизотропия уходит, а исходная ориентация векторов остается:
-
-$$
-\mathbf{y} = \mathbf{W}_{zca} (\mathbf{E} - \boldsymbol{\mu}), \quad \mathbf{W}_{zca} = \mathbf{U} \boldsymbol{\Lambda}^{-1/2} \mathbf{U}^T
-$$
-
-**2. Перенос в касательное пространство $T_S \mathbb{S}^{d-1}$**
-Применяем риманов логарифмический оператор $\text{Log}_S(\mathbf{y})$ в точке системного якоря $S$:
-
-$$
-\mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mathbf{y} - S \cos \theta\bigr), \quad \text{где } \theta = \arccos(\langle S, \mathbf{y} \rangle)
-$$
-
-**3. Ортогональный базис угрозы**
-Процессом Грама — Шмидта отсекаем от вектора угрозы ту часть, которая ортогональна системному правилу:
-
-$$
-\mathbf{e}_{thr} = \frac{\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}}{\|\mathbf{v}_{thr} - \langle \mathbf{v}_{thr}, \mathbf{e}_{sys} \rangle \mathbf{e}_{sys}\|}
-$$
-
-**4. Целевой функционал RSFI**
-
-$$
-\text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r)
-$$
-
-Как только значение $\text{RSFI}(r)$ пробивает порог $\tau$ вниз, API-шлюз обрывает генерацию ответа.
-
----
-
-## 📊 Сравнительный анализ аналогов
-
-| Параметр / Метод | Representation Eng. | Meta Llama Guard 4 | SAFENUDGE / ZEDD | **RSFI (Наш метод)** |
-| :--- | :---: | :---: | :---: | :---: |
-| **Доступ к весам (Access)** | White-Box (Требуется) | Black-Box | Black-Box | **Black-Box (API)** |
-| **Накладные расходы (Latency)** | ~0 мс | > 100–200 мс | < 15 мс | **~0.021 мс (< 10 мс)** |
-| **Нужно дообучение (Zero-Shot)** | Нет | Требует | Нет | **Zero-Shot** |
-| **Защита от анизотропии** | N/A | N/A | Частично | **Полное ZCA Whitening** |
-| **Метрика разделимости (ROC-AUC)**| 0.92 | 0.96 | 0.89 | **1.0000** |
-
----
-
-## 📂 Структура репозитория
-
-```text
-├── introduce.md                  # Введение: суть проблемы, научная лакуна и задачи
-├── math.md                       # Риманова геометрия и вывод формулы RSFI
-├── analogi.md                    # Разбор существующих методов защиты
-├── analogi_2.md                  # Сравнительная таблица по 7 параметрам
-├── openscience_integration.md    # Дизайн экспериментов и план валидации Open Science
-├── source.md                     # Литература (32 источника, 2019–2026 гг.)
-├── vivod.md                      # Выводы, научная новизна и результаты
-└── tests/                        # Код для тестов
-    ├── test_ai.py                # Базовая проверка на сикофантию
-    ├── test2_aai.py              # Валидация ZCA vs PCA, замер Latency и ROC-AUC (10 этапов)
-    ├── test3_advanced.py         # Моделирование ухода контекста в диалоге
-    ├── test4_subspace.py         # Блокировка Zero-Day атак через k-мерное подпространство
-    └── tests_verdict.md          # Итоговые результаты тестов
-```
-
----
-
-## 🚀 Быстрый запуск и воспроизведение
-
-### Требования
-- Python 3.10+
-- `numpy`, `scipy`, `scikit-learn`, `matplotlib`
-
-### Установка зависимостей
-
-```bash
-pip install numpy scipy scikit-learn matplotlib
-```
-
-### Запуск математических бенчмарков
-
-1. **Комплексная валидация (10 этапов) и замер задержки**:
-   ```bash
-   python tests/test2_aai.py
-   ```
-
-2. **Симуляция дрейфа в многошаговом диалоге**:
-   ```bash
-   python tests/test3_advanced.py
-   ```
-
-3. **Проверка на Zero-Day атаках через $k$-мерное подпространство**:
-   ```bash
-   python tests/test4_subspace.py
-   ```
-
----
-
-## 🎓 Апробация и цитирование
-
-Исследование опирается на стандарты ВАК РФ и фреймворк JailbreakBench (NeurIPS 2024).
-
-Если вы используете алгоритм RSFI или наработки из репозитория в своих публикациях, сошлитесь на оригинальную статью:
-
-```bibtex
-@article{osanov2026rsfi,
-  title={Метод динамического контроля семантического дрейфа и сикофантии языковых моделей на основе неевклидовой геометрии и Риманова индекса системной лояльности (RSFI)},
-  author={Осанов, П. В.},
-  journal={Вестник ПСУТИ / ВАК РФ},
-  year={2026}
-}
-```
-
----
-
-## 📄 Лицензия
-
-Проект распространяется под открытой лицензией [MIT](LICENSE).
+</div>
