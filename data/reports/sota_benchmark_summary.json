@@ -1,0 +1,23 @@
+{
+  "embedding_model": "all-mpnet-base-v2",
+  "embedding_dim": 768,
+  "total_prompts": 2000,
+  "malicious_count": 1000,
+  "safe_count": 1000,
+  "roc_auc_metrics": {
+    "RSFI_k10_Subspace": 0.611955,
+    "RSFI_1D_Baseline": 0.644239,
+    "Logistic_Regression_Supervised": 0.898757,
+    "Mahalanobis_Distance": 0.711254,
+    "Naive_Cosine_Similarity": 0.767921
+  },
+  "pr_auc_rsfi_k10": 0.6111472345491991,
+  "latency_profile_ms": {
+    "rsfi_k10_mean_ms": 0.02399855066323653,
+    "rsfi_k10_p95_ms": 0.02899999381043017,
+    "rsfi_k10_p99_ms": 0.04380598431453108,
+    "rsfi_1d_mean_ms": 0.02348445012466982,
+    "zca_fit_total_ms": 1480.3179000737146,
+    "qr_subspace_build_ms": 0.4352000541985035
+  }
+}
