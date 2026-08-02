@@ -5,6 +5,12 @@ subspace rank-deficiencies, and geodesic monotonicity with deep telemetry logs.
 """
 
 import sys
+from pathlib import Path
+
+# Add src directory and root directory to python path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import time
 import numpy as np
 from scipy.linalg import sqrtm, ishermitian
@@ -75,7 +81,7 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     assert dist_same < 1e-12 and norm_same < 1e-12, "Singularity error at y = x"
 
     # --- 2. Near-identical vectors ---
-    MathTestLogger.section("2.1 Near-identical vectors (y = x + eps)")
+    MathTestLogger.section("2.1 Near-identical vectors (y ~= x + eps)")
     eps = 1e-10
     y_near = RiemannianSphere.normalize(x + eps * np.random.randn(dim))
     dist_near = RiemannianSphere.geodesic_distance(x, y_near)
@@ -97,7 +103,7 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     assert abs(dot_val) < 1e-12, "Orthogonal vector generation error"
 
     # --- 4. Near-antipodal vectors ---
-    MathTestLogger.section("4.1 Near-antipodal vectors (<x, y> ≈ -1)")
+    MathTestLogger.section("4.1 Near-antipodal vectors (<x, y> ~= -1)")
     y_antipodal_near = RiemannianSphere.normalize(-x + 1e-7 * np.random.randn(dim))
     dist_anti_near = RiemannianSphere.geodesic_distance(x, y_antipodal_near)
     v_log_anti_near = RiemannianSphere.log_map(x, y_antipodal_near)

@@ -17,8 +17,12 @@ class RiemannianSphere:
     @staticmethod
     def geodesic_distance(x: np.ndarray, y: np.ndarray) -> float:
         """Geodesic distance d_M(x, y) = arccos(<x, y>)."""
-        dot = np.clip(np.dot(x, y), -1.0, 1.0)
-        return float(np.arccos(dot))
+        dot = float(np.dot(x, y))
+        if dot >= 1.0 - 1e-15:
+            return 0.0
+        elif dot <= -1.0 + 1e-15:
+            return float(np.pi)
+        return float(np.arccos(np.clip(dot, -1.0, 1.0)))
 
     @classmethod
     def log_map(cls, x: np.ndarray, y: np.ndarray) -> np.ndarray:
