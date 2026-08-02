@@ -4,7 +4,7 @@ os.environ["USE_TORCH"] = "1"
 os.environ["HF_HOME"] = "./hf_cache"
 
 from datasets import load_dataset
-from test2 import ProductionSFIEngine, SFIBenchmarkRunner
+from rsfi import ProductionSFIEngine, SFIBenchmarkRunner
 
 def build_jbb_scenarios_english():
     print("[DATASET] Loading JailbreakBench/JBB-Behaviors (English splits)...")
