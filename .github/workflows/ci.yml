@@ -27,13 +27,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Test 1 (Basic Drift & Accuracy)
-        run: python tests/test_ai.py
+        run: python src/tests/test_ai.py
 
       - name: Run Test 2 (10-Stage ZCA vs PCA & Latency Benchmark)
-        run: python tests/test2_aai.py
+        run: python src/tests/test2_aai.py
 
       - name: Run Test 3 (Dynamic Context Drift Simulation)
-        run: python tests/test3_advanced.py
+        run: python src/tests/test3_advanced.py
 
       - name: Run Test 4 (k-Subspace Threat Decoupling & Zero-Day Detection)
-        run: python tests/test4_subspace.py
+        run: python src/tests/test4_subspace.py
