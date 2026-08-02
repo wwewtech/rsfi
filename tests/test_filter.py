@@ -3,7 +3,6 @@ Unit tests for RSFIFilter and MultiDimensionalRSFIFilter.
 """
 
 import numpy as np
-import pytest
 
 from rsfi.geometry import RiemannianSphere
 from rsfi.filter import RSFIFilter, MultiDimensionalRSFIFilter

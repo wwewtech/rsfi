@@ -3,7 +3,6 @@ Unit tests for RiemannianSphere geometry module.
 """
 
 import numpy as np
-import pytest
 
 from rsfi.geometry import RiemannianSphere
 
