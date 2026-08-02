@@ -1,0 +1,16 @@
+{
+  "total_samples": 6405,
+  "samples_per_class": 3202,
+  "true_positives": 15,
+  "true_negatives": 4999,
+  "false_positives": 1,
+  "false_negatives": 1390,
+  "accuracy": 0.7828259172521468,
+  "precision": 0.9375,
+  "recall": 0.010676156583629894,
+  "false_positive_rate": 0.0002,
+  "f1_score": 0.021111893033075303,
+  "roc_auc": 0.699404768683274,
+  "mean_latency_ms": 0.34265673628831567,
+  "p95_latency_ms": 0.3835799172520637
+}
