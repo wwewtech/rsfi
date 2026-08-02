@@ -1,6 +1,9 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-import tests.test_ai as test_ai
+try:
+    import src.tests.test_ai as test_ai
+except ImportError:
+    import tests.test_ai as test_ai
 
 # =====================================================================
 # MULTI-DIMENSIONAL RSFI FILTER (IMPROVED VERSION FOR THREAT SUBSPACE)
