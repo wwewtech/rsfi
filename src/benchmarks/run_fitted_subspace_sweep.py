@@ -26,7 +26,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from rsfi import RiemannianSphere, SphericalWhitening, MultiDimensionalRSFIFilter
 
 
-def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_class: int = 1500):
+def run_subspace_sweep(
+    model_name: str = "all-mpnet-base-v2", n_samples_per_class: int = 1500
+):
     print("=" * 90)
     print("   RSFI DATA-DRIVEN SUBSPACE DIMENSION (k) AND REFERENCE SIZE SWEEP")
     print("=" * 90 + "\n")
@@ -35,6 +37,7 @@ def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_clas
     dim = model.get_sentence_embedding_dimension()
 
     from rsfi.benchmarks.wildchat_10k import WildChatBenchmarkRunner
+
     runner = WildChatBenchmarkRunner(model_name=model_name, cache_folder=CACHE_DIR)
     samples = runner.load_dataset_samples(target_per_class=n_samples_per_class)
 
@@ -45,7 +48,9 @@ def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_clas
 
     all_texts = [s.text for s in samples]
     print(f"[ENCODING] Encoding {len(all_texts)} dataset prompts with {model_name}...")
-    raw_embeddings = model.encode(all_texts, convert_to_numpy=True, batch_size=128, show_progress_bar=True)
+    raw_embeddings = model.encode(
+        all_texts, convert_to_numpy=True, batch_size=128, show_progress_bar=True
+    )
 
     mal_indices = np.where(y_true == 1)[0]
     safe_indices = np.where(y_true == 0)[0]
@@ -68,11 +73,18 @@ def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_clas
 
         # System Anchor S
         ref_safe_whitened = whitening.transform(raw_embeddings[ref_safe_idx])
-        S = RiemannianSphere.normalize(np.mean(ref_safe_whitened, axis=0, keepdims=True))[0]
+        S = RiemannianSphere.normalize(
+            np.mean(ref_safe_whitened, axis=0, keepdims=True)
+        )[0]
 
         # Tangent Threat Vectors
         ref_mal_whitened = whitening.transform(raw_embeddings[ref_mal_idx])
-        tangent_threats = np.array([RiemannianSphere.log_map(S, ref_mal_whitened[i]) for i in range(len(ref_mal_whitened))])
+        tangent_threats = np.array(
+            [
+                RiemannianSphere.log_map(S, ref_mal_whitened[i])
+                for i in range(len(ref_mal_whitened))
+            ]
+        )
 
         # Perform SVD
         U, Sigma, Vh = np.linalg.svd(tangent_threats, full_matrices=False)
@@ -81,7 +93,9 @@ def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_clas
 
         for k in [1, 5, 10, 20, 30, 40]:
             fitted_threat_vectors = Vh[:k]
-            rsfi_filter = MultiDimensionalRSFIFilter(S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5)
+            rsfi_filter = MultiDimensionalRSFIFilter(
+                S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5, is_tangent=True
+            )
 
             rsfi_scores = []
             t0 = time.perf_counter()
@@ -91,21 +105,27 @@ def run_subspace_sweep(model_name: str = "all-mpnet-base-v2", n_samples_per_clas
             lat_ms = (time.perf_counter() - t0) * 1000.0 / len(test_whitened)
 
             auc_score = float(roc_auc_score(y_test, np.array(rsfi_scores)))
-            var_exp = float(np.sum(Sigma[:k]**2) / np.sum(Sigma**2) * 100.0)
+            var_exp = float(np.sum(Sigma[:k] ** 2) / np.sum(Sigma**2) * 100.0)
 
-            sweep_results.append({
-                "N_ref": n_ref,
-                "k_dim": k,
-                "roc_auc": auc_score,
-                "explained_var_pct": var_exp,
-                "latency_us": lat_ms * 1000.0
-            })
-            print(f"N_ref={n_ref:3d} | k={k:2d} | Explained Var={var_exp:5.1f}% | ROC-AUC = {auc_score:.4f} | Latency = {lat_ms*1000.0:.1f} us")
+            sweep_results.append(
+                {
+                    "N_ref": n_ref,
+                    "k_dim": k,
+                    "roc_auc": auc_score,
+                    "explained_var_pct": var_exp,
+                    "latency_us": lat_ms * 1000.0,
+                }
+            )
+            print(
+                f"N_ref={n_ref:3d} | k={k:2d} | Explained Var={var_exp:5.1f}% | ROC-AUC = {auc_score:.4f} | Latency = {lat_ms*1000.0:.1f} us"
+            )
 
     df_res = pd.DataFrame(sweep_results)
     out_dir = Path("data/reports")
     df_res.to_csv(out_dir / "fitted_subspace_sweep.csv", index=False)
-    print(f"\n[EXPORT] Sweep results saved to: {out_dir / 'fitted_subspace_sweep.csv'}\n")
+    print(
+        f"\n[EXPORT] Sweep results saved to: {out_dir / 'fitted_subspace_sweep.csv'}\n"
+    )
 
 
 if __name__ == "__main__":

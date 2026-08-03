@@ -36,7 +36,7 @@ class RSFIFilter:
     def evaluate(self, R_t: np.ndarray) -> Dict[str, Any]:
         """
         Evaluate response vector R_t in tangent space T_S M.
-        
+
         Returns dictionary containing:
         - v_R: Log-map vector in T_S M
         - d_M: Geodesic distance d_M(S, R_t)
@@ -82,20 +82,24 @@ class MultiDimensionalRSFIFilter:
     def __init__(
         self,
         S: np.ndarray,
-        V_threats: List[np.ndarray],
+        V_threats: Union[List[np.ndarray], np.ndarray],
         alpha: float = 1.0,
         beta: float = 0.5,
         tau: float = 0.0,
+        is_tangent: bool = False,
     ):
         self.S = S
         self.alpha = alpha
         self.beta = beta
         self.tau = tau
 
-        # 1. Map all threat vectors into tangent space T_S M
+        # 1. Map threat vectors into tangent space T_S M if they aren't already tangent vectors
         U_tangent = []
         for V in V_threats:
-            v_thr = RiemannianSphere.log_map(S, V)
+            if is_tangent:
+                v_thr = V
+            else:
+                v_thr = RiemannianSphere.log_map(S, V)
             U_tangent.append(v_thr)
 
         U_matrix = np.column_stack(U_tangent)  # Shape: (dim, k)

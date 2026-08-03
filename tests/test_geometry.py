@@ -24,7 +24,7 @@ def test_log_map_axioms():
     dim = 128
     np.random.seed(42)
     S = RiemannianSphere.normalize(np.random.randn(dim))
-    
+
     for _ in range(50):
         R = RiemannianSphere.normalize(np.random.randn(dim))
         d_geom = RiemannianSphere.geodesic_distance(S, R)
@@ -43,7 +43,7 @@ def test_exp_map():
     np.random.seed(123)
     S = RiemannianSphere.normalize(np.random.randn(dim))
     R = RiemannianSphere.normalize(np.random.randn(dim))
-    
+
     v_R = RiemannianSphere.log_map(S, R)
     R_recovered = RiemannianSphere.exp_map(S, v_R)
 

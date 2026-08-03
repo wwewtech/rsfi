@@ -27,7 +27,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from rsfi import RiemannianSphere, SphericalWhitening, MultiDimensionalRSFIFilter
 
 
-def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_samples_per_class: int = 1000, k: int = 10):
+def run_fitted_subspace_benchmark(
+    model_name: str = "all-mpnet-base-v2", n_samples_per_class: int = 1000, k: int = 10
+):
     print("=" * 90)
     print("   DATA-DRIVEN RSFI THREAT SUBSPACE FITTING & BENCHMARK")
     print("=" * 90 + "\n")
@@ -36,6 +38,7 @@ def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_sampl
     dim = model.get_sentence_embedding_dimension()
 
     from rsfi.benchmarks.wildchat_10k import WildChatBenchmarkRunner
+
     runner = WildChatBenchmarkRunner(model_name=model_name, cache_folder=CACHE_DIR)
     samples = runner.load_dataset_samples(target_per_class=n_samples_per_class)
 
@@ -57,7 +60,9 @@ def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_sampl
 
     all_texts = [s.text for s in samples]
     print(f"[ENCODING] Encoding {len(all_texts)} prompts with {model_name}...")
-    raw_embeddings = model.encode(all_texts, convert_to_numpy=True, batch_size=128, show_progress_bar=True)
+    raw_embeddings = model.encode(
+        all_texts, convert_to_numpy=True, batch_size=128, show_progress_bar=True
+    )
 
     # Fit ZCA Whitening on Safe Reference Set + Calibration Corpus
     calib_corpus = [s.text for s in samples if s.scenario_type == "SAFE"][:500]
@@ -84,10 +89,14 @@ def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_sampl
     U, Sigma, Vh = np.linalg.svd(tangent_threats, full_matrices=False)
     fitted_threat_vectors = Vh[:k]  # Top k threat basis vectors
 
-    print(f"[SUBSPACE] Fitted top k={k} data-driven threat directions (explained variance: {np.sum(Sigma[:k]**2)/np.sum(Sigma**2)*100:.1f}%)")
+    print(
+        f"[SUBSPACE] Fitted top k={k} data-driven threat directions (explained variance: {np.sum(Sigma[:k]**2)/np.sum(Sigma**2)*100:.1f}%)"
+    )
 
     # Build RSFI Filter with Fitted Subspace
-    rsfi_fitted_filter = MultiDimensionalRSFIFilter(S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5)
+    rsfi_fitted_filter = MultiDimensionalRSFIFilter(
+        S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5, is_tangent=True
+    )
 
     # Evaluate on Test Set
     test_raw = raw_embeddings[test_idx]
@@ -108,7 +117,9 @@ def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_sampl
     auc_rsfi_fitted = float(roc_auc_score(y_test, rsfi_scores))
 
     # Baseline: Cosine to Mean Malicious Centroid
-    mal_centroid = RiemannianSphere.normalize(np.mean(ref_mal_raw, axis=0, keepdims=True))[0]
+    mal_centroid = RiemannianSphere.normalize(
+        np.mean(ref_mal_raw, axis=0, keepdims=True)
+    )[0]
     cosine_scores = np.dot(RiemannianSphere.normalize(test_raw), mal_centroid)
     auc_cosine = float(roc_auc_score(y_test, cosine_scores))
 
@@ -119,11 +130,17 @@ def run_fitted_subspace_benchmark(model_name: str = "all-mpnet-base-v2", n_sampl
     print(f"Test Set Prompts (N_test)                : {len(y_test)}")
     print(f"Reference Train Set                      : 50 Safe + 50 Malicious Prompts")
     print("-" * 90)
-    print(f"  1. RSFI Fitted k={k} Subspace (Our Method) : ROC-AUC = {auc_rsfi_fitted:.4f}")
+    print(
+        f"  1. RSFI Fitted k={k} Subspace (Our Method) : ROC-AUC = {auc_rsfi_fitted:.4f}"
+    )
     print(f"  2. Baseline Cosine to Attack Centroid   : ROC-AUC = {auc_cosine:.4f}")
-    print(f"  Mean RSFI Latency per prompt           : {np.mean(latencies)*1000.0:.1f} us ({np.mean(latencies):.3f} ms)")
+    print(
+        f"  Mean RSFI Latency per prompt           : {np.mean(latencies)*1000.0:.1f} us ({np.mean(latencies):.3f} ms)"
+    )
     print("=" * 90 + "\n")
 
 
 if __name__ == "__main__":
-    run_fitted_subspace_benchmark(model_name="all-mpnet-base-v2", n_samples_per_class=1000, k=10)
+    run_fitted_subspace_benchmark(
+        model_name="all-mpnet-base-v2", n_samples_per_class=1000, k=10
+    )

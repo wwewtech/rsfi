@@ -1,4 +1,16 @@
 import sys
+from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+# Add src to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import time
 import numpy as np
 
@@ -42,11 +54,17 @@ def run_comprehensive_tests():
         if tangent_err > max_tangent_ortho_error:
             max_tangent_ortho_error = tangent_err
 
-    print(f"  -> Макс. абсолютная невязка ||Log_S(R)||_2 - d_M(S, R): {max_log_norm_error:.2e}")
-    print(f"  -> Макс. отклонение от ортогональности касательного пространства <S, v_R>: {max_tangent_ortho_error:.2e}")
+    print(
+        f"  -> Макс. абсолютная невязка ||Log_S(R)||_2 - d_M(S, R): {max_log_norm_error:.2e}"
+    )
+    print(
+        f"  -> Макс. отклонение от ортогональности касательного пространства <S, v_R>: {max_tangent_ortho_error:.2e}"
+    )
 
     assert max_log_norm_error < 1e-12, "Ошибка геодезической нормы!"
-    assert max_tangent_ortho_error < 1e-12, "Вектор не лежит в касательном пространстве!"
+    assert (
+        max_tangent_ortho_error < 1e-12
+    ), "Вектор не лежит в касательном пространстве!"
     print("  [РЕЗУЛЬТАТ]: ТЕСТ 1 УСПЕШНО ПРЕОДОЛЕН (Математическая строгость 100%)")
 
     # --
@@ -77,8 +95,12 @@ def run_comprehensive_tests():
         if vperp_err > max_vperp_ortho_error:
             max_vperp_ortho_error = vperp_err
 
-    print(f"  -> Макс. абсолютная невязка Теоремы Пифагора в T_S M: {max_pythagoras_error:.2e}")
-    print(f"  -> Макс. отклонение ортогональности компонентов <v_perp, e_thr>: {max_vperp_ortho_error:.2e}")
+    print(
+        f"  -> Макс. абсолютная невязка Теоремы Пифагора в T_S M: {max_pythagoras_error:.2e}"
+    )
+    print(
+        f"  -> Макс. отклонение ортогональности компонентов <v_perp, e_thr>: {max_vperp_ortho_error:.2e}"
+    )
 
     assert max_pythagoras_error < 1e-12, "Нарушение теоремы Пифагора!"
     assert max_vperp_ortho_error < 1e-12, "Компоненты v_perp и e_thr не ортогональны!"

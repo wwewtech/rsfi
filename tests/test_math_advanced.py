@@ -24,6 +24,7 @@ from rsfi.filter import RSFIFilter, MultiDimensionalRSFIFilter
 # UTILITY: RIGOROUS LOGGING HELPER
 # =====================================================================
 
+
 class MathTestLogger:
     """Structured logger for mathematical boundary stress tests."""
 
@@ -38,9 +39,13 @@ class MathTestLogger:
         print(f"\n--- [SECTION] {name} ---")
 
     @staticmethod
-    def log_metric(name: str, value: float, threshold: float, unit: str = "", passed: bool = True):
+    def log_metric(
+        name: str, value: float, threshold: float, unit: str = "", passed: bool = True
+    ):
         status = "[PASS]" if passed else "[FAIL]"
-        print(f"  {status} {name:<45} = {value:12.6e} {unit:<5} (Tolerance <= {threshold:.1e})")
+        print(
+            f"  {status} {name:<45} = {value:12.6e} {unit:<5} (Tolerance <= {threshold:.1e})"
+        )
 
     @staticmethod
     def log_info(msg: str):
@@ -55,6 +60,7 @@ class MathTestLogger:
 # TEST SUITE 1: RIEMANNIAN GEOMETRY SINGULARITIES & ISOMETRY
 # =====================================================================
 
+
 def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     """
     Stress-tests RiemannianSphere under singular points:
@@ -68,7 +74,7 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     """
     MathTestLogger.header("SUITE 1: RIEMANNIAN GEOMETRY BOUNDARIES & SINGULARITIES")
     np.random.seed(seed)
-    
+
     x = RiemannianSphere.normalize(np.random.randn(dim))
 
     # --- 1. Identical vectors ---
@@ -99,7 +105,9 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     v_log_ortho = RiemannianSphere.log_map(x, y_ortho)
     dot_val = np.dot(x, y_ortho)
     MathTestLogger.log_metric("Dot product <x, y_ortho>", abs(dot_val), 1e-12)
-    MathTestLogger.log_metric("Geodesic distance for orthogonal pair", abs(dist_ortho - np.pi / 2), 1e-10)
+    MathTestLogger.log_metric(
+        "Geodesic distance for orthogonal pair", abs(dist_ortho - np.pi / 2), 1e-10
+    )
     assert abs(dot_val) < 1e-12, "Orthogonal vector generation error"
 
     # --- 4. Near-antipodal vectors ---
@@ -112,7 +120,9 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     is_nan = np.isnan(v_log_anti_near).any() or np.isinf(v_log_anti_near).any()
     MathTestLogger.log_metric("Near-antipodal Log_map norm error", err_anti_near, 1e-6)
     MathTestLogger.log_info(f"Contains NaN/Inf: {is_nan}")
-    assert not is_nan and err_anti_near < 1e-6, "Antipodal singularity blew up into NaN/Inf"
+    assert (
+        not is_nan and err_anti_near < 1e-6
+    ), "Antipodal singularity blew up into NaN/Inf"
 
     # --- 5. Exact Antipodal vector ---
     MathTestLogger.section("5.1 Exact Antipodal vector (y = -x)")
@@ -120,11 +130,17 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     dist_anti_exact = RiemannianSphere.geodesic_distance(x, y_anti_exact)
     v_log_anti_exact = RiemannianSphere.log_map(x, y_anti_exact)
     is_nan_exact = np.isnan(v_log_anti_exact).any()
-    MathTestLogger.log_metric("Exact antipodal distance d_M(x, -x)", abs(dist_anti_exact - np.pi), 1e-10)
-    MathTestLogger.log_info(f"Log_map(-x) NaN check: {is_nan_exact} (Norm: {np.linalg.norm(v_log_anti_exact):.6f})")
+    MathTestLogger.log_metric(
+        "Exact antipodal distance d_M(x, -x)", abs(dist_anti_exact - np.pi), 1e-10
+    )
+    MathTestLogger.log_info(
+        f"Log_map(-x) NaN check: {is_nan_exact} (Norm: {np.linalg.norm(v_log_anti_exact):.6f})"
+    )
 
     # --- 6. Triangle Inequality on S^(d-1) ---
-    MathTestLogger.section("6.1 Triangle Inequality on S^(d-1) (d_M(x, z) <= d_M(x, y) + d_M(y, z))")
+    MathTestLogger.section(
+        "6.1 Triangle Inequality on S^(d-1) (d_M(x, z) <= d_M(x, y) + d_M(y, z))"
+    )
     max_tri_violation = 0.0
     for _ in range(500):
         p1 = RiemannianSphere.normalize(np.random.randn(dim))
@@ -139,14 +155,18 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
         if violation > max_tri_violation:
             max_tri_violation = violation
 
-    MathTestLogger.log_metric("Max Triangle Inequality Violation", max_tri_violation, 1e-12)
+    MathTestLogger.log_metric(
+        "Max Triangle Inequality Violation", max_tri_violation, 1e-12
+    )
     assert max_tri_violation < 1e-12, "Spherical triangle inequality violated"
 
     # --- 7. Rotational Invariance (Isometry under Q in O(d)) ---
-    MathTestLogger.section("7.1 Rotational Invariance under Orthogonal Transformation Q in O(d)")
+    MathTestLogger.section(
+        "7.1 Rotational Invariance under Orthogonal Transformation Q in O(d)"
+    )
     # Generate random orthogonal matrix Q via QR
     Q, _ = np.linalg.qr(np.random.randn(dim, dim))
-    
+
     x_rot = Q @ x
     y_rot = Q @ y_near
 
@@ -160,13 +180,18 @@ def test_riemannian_geometry_boundaries(dim: int = 1536, seed: int = 42):
     log_rot_err = np.linalg.norm(v_log_rot - v_log_transformed)
 
     MathTestLogger.log_metric("Distance Rotational Invariance Delta", dist_diff, 1e-12)
-    MathTestLogger.log_metric("Log_map Rotational Isometry Norm Error", log_rot_err, 1e-10)
-    assert dist_diff < 1e-12 and log_rot_err < 1e-10, "Riemannian operations violate rotational isometry"
+    MathTestLogger.log_metric(
+        "Log_map Rotational Isometry Norm Error", log_rot_err, 1e-10
+    )
+    assert (
+        dist_diff < 1e-12 and log_rot_err < 1e-10
+    ), "Riemannian operations violate rotational isometry"
 
 
 # =====================================================================
 # TEST SUITE 2: ZCA WHITENING INVARIANTS & STRESS AT HIGH DIMENSIONS
 # =====================================================================
+
 
 def test_zca_whitening_invariants(dim: int = 1536, seed: int = 42):
     """
@@ -186,16 +211,20 @@ def test_zca_whitening_invariants(dim: int = 1536, seed: int = 42):
     # Generate anisotropic covariance
     scale = np.exp(np.random.randn(dim) * 0.5)
     data_full = np.random.randn(N_large, dim) * scale
-    
+
     whitening = SphericalWhitening(dim=dim, reg=1e-6)
     whitening.fit(data_full)
 
     W = whitening.W
-    symmetry_err = np.linalg.norm(W - W.T, ord='fro')
+    symmetry_err = np.linalg.norm(W - W.T, ord="fro")
     min_eig = float(np.min(np.linalg.eigvalsh(W)))
 
-    MathTestLogger.log_metric("Frobenius Norm of Symmetry Error ||W - W^T||_F", symmetry_err, 1e-8)
-    MathTestLogger.log_metric("Minimum Eigenvalue min(lambda(W))", min_eig, 0.0, passed=(min_eig > 0))
+    MathTestLogger.log_metric(
+        "Frobenius Norm of Symmetry Error ||W - W^T||_F", symmetry_err, 1e-8
+    )
+    MathTestLogger.log_metric(
+        "Minimum Eigenvalue min(lambda(W))", min_eig, 0.0, passed=(min_eig > 0)
+    )
     assert symmetry_err < 1e-8, "ZCA Whitening matrix is not symmetric"
     assert min_eig > 0, "ZCA Whitening matrix is not positive-definite"
 
@@ -204,8 +233,10 @@ def test_zca_whitening_invariants(dim: int = 1536, seed: int = 42):
     centered_data = data_full - whitening.mu
     whitened_unnorm = centered_data @ W
     cov_whitened = np.cov(whitened_unnorm, rowvar=False)
-    isotropy_err = np.linalg.norm(cov_whitened - np.eye(dim), ord='fro') / dim
-    MathTestLogger.log_metric("Mean Frobenius Error ||Cov(X_whitened) - I||_F / d", isotropy_err, 1e-2)
+    isotropy_err = np.linalg.norm(cov_whitened - np.eye(dim), ord="fro") / dim
+    MathTestLogger.log_metric(
+        "Mean Frobenius Error ||Cov(X_whitened) - I||_F / d", isotropy_err, 1e-2
+    )
 
     # --- 3. Severe Rank-Deficiency Stress (N << d) ---
     MathTestLogger.section("3.1 Severe Rank-Deficiency Stress (N=30 samples, d=1536)")
@@ -231,13 +262,16 @@ def test_zca_whitening_invariants(dim: int = 1536, seed: int = 42):
     transformed_sparse = whitening_sparse.transform(data_sparse[:5])
     norms = np.linalg.norm(transformed_sparse, axis=1)
     max_norm_err = float(np.max(np.abs(norms - 1.0)))
-    MathTestLogger.log_metric("Max Spherical Re-projection Error || ||y|| - 1 ||", max_norm_err, 1e-12)
+    MathTestLogger.log_metric(
+        "Max Spherical Re-projection Error || ||y|| - 1 ||", max_norm_err, 1e-12
+    )
     assert max_norm_err < 1e-12, "Spherical re-projection failed to output unit vectors"
 
 
 # =====================================================================
 # TEST SUITE 3: SUBSPACE QR DECOMPOSITION & DEGENERACY
 # =====================================================================
+
 
 def test_subspace_qr_degeneracy(dim: int = 1536, seed: int = 42):
     """
@@ -247,7 +281,9 @@ def test_subspace_qr_degeneracy(dim: int = 1536, seed: int = 42):
     3. Orthonormality Q_k^T * Q_k = I_k under rank deficiency
     4. Large threat subspace (k=50 threats)
     """
-    MathTestLogger.header("SUITE 3: THREAT SUBSPACE QR DECOMPOSITION & DEGENERACY STRESS")
+    MathTestLogger.header(
+        "SUITE 3: THREAT SUBSPACE QR DECOMPOSITION & DEGENERACY STRESS"
+    )
     np.random.seed(seed)
 
     S = RiemannianSphere.normalize(np.random.randn(dim))
@@ -257,49 +293,74 @@ def test_subspace_qr_degeneracy(dim: int = 1536, seed: int = 42):
     V_base = RiemannianSphere.normalize(np.random.randn(dim))
     V_threats_dup = [V_base, V_base.copy(), V_base.copy()]
 
-    filter_dup = MultiDimensionalRSFIFilter(S, V_threats_dup, alpha=1.5, beta=0.5, tau=0.0)
+    filter_dup = MultiDimensionalRSFIFilter(
+        S, V_threats_dup, alpha=1.5, beta=0.5, tau=0.0
+    )
     Q_dup = filter_dup.Q_thr
-    
+
     is_nan_q = np.isnan(Q_dup).any()
     k_dup = Q_dup.shape[1]
     ortho_dup_err = np.linalg.norm(Q_dup.T @ Q_dup - np.eye(k_dup))
 
-    MathTestLogger.log_metric("Duplicate Threats Basis Orthonormality Error ||Q^T Q - I||", ortho_dup_err, 1e-10)
+    MathTestLogger.log_metric(
+        "Duplicate Threats Basis Orthonormality Error ||Q^T Q - I||",
+        ortho_dup_err,
+        1e-10,
+    )
     MathTestLogger.log_info(f"Q_dup shape: {Q_dup.shape}, Contains NaN: {is_nan_q}")
     assert not is_nan_q, "QR decomposition produced NaN on duplicate threat vectors"
 
     # --- 2. Near-Collinear Threat Vectors ---
-    MathTestLogger.section("2.1 Near-Collinear Threat Vectors (V_2 = V_1 + 1e-8 * noise)")
+    MathTestLogger.section(
+        "2.1 Near-Collinear Threat Vectors (V_2 = V_1 + 1e-8 * noise)"
+    )
     V1 = RiemannianSphere.normalize(np.random.randn(dim))
     V2 = RiemannianSphere.normalize(V1 + 1e-8 * np.random.randn(dim))
     V3 = RiemannianSphere.normalize(V1 - 1e-8 * np.random.randn(dim))
 
-    filter_collinear = MultiDimensionalRSFIFilter(S, [V1, V2, V3], alpha=1.5, beta=0.5, tau=0.0)
+    filter_collinear = MultiDimensionalRSFIFilter(
+        S, [V1, V2, V3], alpha=1.5, beta=0.5, tau=0.0
+    )
     Q_collinear = filter_collinear.Q_thr
     ortho_collinear_err = np.linalg.norm(Q_collinear.T @ Q_collinear - np.eye(3))
-    MathTestLogger.log_metric("Near-Collinear Orthonormality Error ||Q^T Q - I||", ortho_collinear_err, 1e-10)
-    assert ortho_collinear_err < 1e-10, "QR decomposition failed orthonormality on near-collinear input"
+    MathTestLogger.log_metric(
+        "Near-Collinear Orthonormality Error ||Q^T Q - I||", ortho_collinear_err, 1e-10
+    )
+    assert (
+        ortho_collinear_err < 1e-10
+    ), "QR decomposition failed orthonormality on near-collinear input"
 
     # --- 3. Large Threat Subspace (k=50) ---
-    MathTestLogger.section("3.1 Large Threat Subspace Stress Test (k=50 threats in d=1536)")
+    MathTestLogger.section(
+        "3.1 Large Threat Subspace Stress Test (k=50 threats in d=1536)"
+    )
     k_large = 50
-    V_threats_large = [RiemannianSphere.normalize(np.random.randn(dim)) for _ in range(k_large)]
+    V_threats_large = [
+        RiemannianSphere.normalize(np.random.randn(dim)) for _ in range(k_large)
+    ]
 
     t0 = time.perf_counter()
-    filter_large = MultiDimensionalRSFIFilter(S, V_threats_large, alpha=1.5, beta=0.5, tau=0.0)
+    filter_large = MultiDimensionalRSFIFilter(
+        S, V_threats_large, alpha=1.5, beta=0.5, tau=0.0
+    )
     qr_build_ms = (time.perf_counter() - t0) * 1000.0
 
     Q_large = filter_large.Q_thr
     ortho_large_err = np.linalg.norm(Q_large.T @ Q_large - np.eye(k_large))
 
-    MathTestLogger.log_metric("k=50 QR Subspace Construction Time", qr_build_ms, 50.0, unit="ms")
-    MathTestLogger.log_metric("k=50 Basis Orthonormality Error ||Q^T Q - I_50||", ortho_large_err, 1e-10)
+    MathTestLogger.log_metric(
+        "k=50 QR Subspace Construction Time", qr_build_ms, 50.0, unit="ms"
+    )
+    MathTestLogger.log_metric(
+        "k=50 Basis Orthonormality Error ||Q^T Q - I_50||", ortho_large_err, 1e-10
+    )
     assert ortho_large_err < 1e-10, "Large threat subspace lost orthonormality"
 
 
 # =====================================================================
 # TEST SUITE 4: GEODESIC MONOTONICITY & CONTINUITY AUDIT
 # =====================================================================
+
 
 def test_geodesic_monotonicity(dim: int = 1536, seed: int = 42):
     """
@@ -310,7 +371,9 @@ def test_geodesic_monotonicity(dim: int = 1536, seed: int = 42):
     2. Strict Monotonic Decay of RSFI score
     3. Continuity without step discontinuities or derivative spikes
     """
-    MathTestLogger.header("SUITE 4: CONTINUOUS GEODESIC TRAJECTORY & MONOTONICITY AUDIT")
+    MathTestLogger.header(
+        "SUITE 4: CONTINUOUS GEODESIC TRAJECTORY & MONOTONICITY AUDIT"
+    )
     np.random.seed(seed)
 
     S = RiemannianSphere.normalize(np.random.randn(dim))
@@ -350,18 +413,35 @@ def test_geodesic_monotonicity(dim: int = 1536, seed: int = 42):
     min_pi_step = float(np.min(dpi_dt))
 
     MathTestLogger.section("4.1 Geodesic Interpolation Audit Results (100 steps)")
-    MathTestLogger.log_metric("Min pi_thr step derivative (dpi/dt >= 0)", min_pi_step, 0.0, passed=pi_monotonic)
-    MathTestLogger.log_metric("Max RSFI step spike (dRSFI/dt <= 0)", max_rsfi_spike, 0.0, passed=rsfi_monotonic)
-    MathTestLogger.log_info(f"RSFI Start (t=0): {rsfi_arr[0]:+.4f} -> End (t=1): {rsfi_arr[-1]:+.4f}")
-    MathTestLogger.log_info(f"pi_thr Start (t=0): {pi_thr_arr[0]:+.4f} -> End (t=1): {pi_thr_arr[-1]:+.4f}")
+    MathTestLogger.log_metric(
+        "Min pi_thr step derivative (dpi/dt >= 0)",
+        min_pi_step,
+        0.0,
+        passed=pi_monotonic,
+    )
+    MathTestLogger.log_metric(
+        "Max RSFI step spike (dRSFI/dt <= 0)",
+        max_rsfi_spike,
+        0.0,
+        passed=rsfi_monotonic,
+    )
+    MathTestLogger.log_info(
+        f"RSFI Start (t=0): {rsfi_arr[0]:+.4f} -> End (t=1): {rsfi_arr[-1]:+.4f}"
+    )
+    MathTestLogger.log_info(
+        f"pi_thr Start (t=0): {pi_thr_arr[0]:+.4f} -> End (t=1): {pi_thr_arr[-1]:+.4f}"
+    )
 
-    assert pi_monotonic, "Threat projection pi_thr is not monotonic along geodesic trajectory"
+    assert (
+        pi_monotonic
+    ), "Threat projection pi_thr is not monotonic along geodesic trajectory"
     assert rsfi_monotonic, "RSFI score is not monotonic along geodesic trajectory"
 
 
 # =====================================================================
 # TEST SUITE 5: FLOAT32 VS FLOAT64 PRECISION COMPARISON
 # =====================================================================
+
 
 def test_floating_point_precision_drift(dim: int = 1536, seed: int = 42):
     """
@@ -403,11 +483,12 @@ def test_floating_point_precision_drift(dim: int = 1536, seed: int = 42):
 # MAIN ENTRYPOINT
 # =====================================================================
 
+
 def run_all_advanced_math_tests():
     print("=" * 90)
     print("      COMPREHENSIVE MATHEMATICAL BOUNDARY & RIGOROUS STRESS TEST SUITE")
     print("=" * 90)
-    
+
     t_start = time.perf_counter()
 
     test_riemannian_geometry_boundaries()
@@ -419,7 +500,9 @@ def run_all_advanced_math_tests():
     total_duration_sec = time.perf_counter() - t_start
 
     print("\n" + "=" * 90)
-    print(f"   ALL ADVANCED MATHEMATICAL TESTS PASSED SUCCESSFULLY! Total time: {total_duration_sec:.3f} s")
+    print(
+        f"   ALL ADVANCED MATHEMATICAL TESTS PASSED SUCCESSFULLY! Total time: {total_duration_sec:.3f} s"
+    )
     print("=" * 90)
 
 

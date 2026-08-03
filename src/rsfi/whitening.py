@@ -20,7 +20,7 @@ class SphericalWhitening:
     def fit(self, data: np.ndarray):
         """
         Compute empirical mean and ZCA whitening matrix W = Sigma^(-1/2).
-        
+
         Args:
             data: Background calibration data array of shape (N, dim).
         """
@@ -38,7 +38,7 @@ class SphericalWhitening:
     def transform(self, x: np.ndarray) -> np.ndarray:
         """
         Apply whitening transformation and re-normalize onto S^(d-1).
-        
+
         Args:
             x: Input vector or matrix of shape (dim,) or (N, dim).
         """

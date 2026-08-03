@@ -44,7 +44,10 @@ class BenchmarkSummary:
 
 
 class ProductionSFIEngine:
-    def __init__(self, model_name: str = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'):
+    def __init__(
+        self,
+        model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    ):
         logging.info(f"Initializing RSFI Engine with model: {model_name}")
         self.model_name = model_name
         self.model = SentenceTransformer(model_name)
@@ -101,12 +104,27 @@ class ProductionSFIEngine:
         sfi = p_sys - p_thr
 
         # Naive cosine similarity without orthogonalization
-        naive_sys = float(np.dot(raw_r, raw_sys) / (np.linalg.norm(raw_r) * np.linalg.norm(raw_sys)))
-        naive_thr = float(np.dot(raw_r, raw_thr) / (np.linalg.norm(raw_r) * np.linalg.norm(raw_thr)))
+        naive_sys = float(
+            np.dot(raw_r, raw_sys) / (np.linalg.norm(raw_r) * np.linalg.norm(raw_sys))
+        )
+        naive_thr = float(
+            np.dot(raw_r, raw_thr) / (np.linalg.norm(raw_r) * np.linalg.norm(raw_thr))
+        )
 
         latency_ms = (time.perf_counter() - t0) * 1000.0
 
         return sfi, p_sys, p_thr, naive_sys, naive_thr, latency_ms
+
+
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 
 class SFIBenchmarkRunner:
@@ -115,11 +133,17 @@ class SFIBenchmarkRunner:
         self.threshold = threshold
         self.telemetry_logs: List[SentenceTelemetry] = []
 
-    def run_suite(self, scenarios: List[Dict[str, Any]], system_prompt: str, threat_anchor: str):
-        e1, e2, raw_sys, raw_thr = self.engine.construct_orthogonal_basis(system_prompt, threat_anchor)
+    def run_suite(
+        self, scenarios: List[Dict[str, Any]], system_prompt: str, threat_anchor: str
+    ):
+        e1, e2, raw_sys, raw_thr = self.engine.construct_orthogonal_basis(
+            system_prompt, threat_anchor
+        )
 
         print("\n" + "=" * 80)
-        print(f"START SFI BENCHMARK | Threshold: {self.threshold} | Model: {self.engine.model_name}")
+        print(
+            f"START SFI BENCHMARK | Threshold: {self.threshold} | Model: {self.engine.model_name}"
+        )
         print("=" * 80 + "\n")
 
         for sc in scenarios:
@@ -152,4 +176,65 @@ class SFIBenchmarkRunner:
                 self.telemetry_logs.append(log_entry)
 
                 status_str = "🛑 [BLOCKED]" if is_blocked else "✅ [PASSED]"
-                print(f"  [{status_str}] SFI: {sfi:+.4f} | Latency: {lat:.2f}ms | Text: {text[:60]}...")
+                print(
+                    f"  [{status_str}] SFI: {sfi:+.4f} | Latency: {lat:.2f}ms | Text: {text[:60]}..."
+                )
+
+    def export_csv(self, filepath: Union[str, Path]) -> None:
+        """Export telemetry logs to CSV format."""
+        import pandas as pd
+
+        df = pd.DataFrame([asdict(log) for log in self.telemetry_logs])
+        df.to_csv(filepath, index=False)
+        print(f"[EXPORT] Saved CSV telemetry to {filepath}")
+
+    def export_json(self, filepath: Union[str, Path]) -> None:
+        """Export telemetry logs to JSON format."""
+        import json
+
+        logs_dict = [asdict(log) for log in self.telemetry_logs]
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(logs_dict, f, indent=2, ensure_ascii=False)
+        print(f"[EXPORT] Saved JSON telemetry to {filepath}")
+
+    def compute_academic_metrics(self) -> BenchmarkSummary:
+        """Compute summary statistical metrics over all evaluated sentences."""
+        total = len(self.telemetry_logs)
+        if total == 0:
+            return BenchmarkSummary(0, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+        tp = fp = tn = fn = 0
+        for log in self.telemetry_logs:
+            if log.scenario_type == "MALICIOUS":
+                if log.is_blocked:
+                    tp += 1
+                else:
+                    fn += 1
+            else:
+                if log.is_blocked:
+                    fp += 1
+                else:
+                    tn += 1
+
+        accuracy = (tp + tn) / total if total > 0 else 0.0
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = (
+            2 * (precision * recall) / (precision + recall)
+            if (precision + recall) > 0
+            else 0.0
+        )
+        mean_latency = float(np.mean([t.latency_ms for t in self.telemetry_logs]))
+
+        return BenchmarkSummary(
+            total_sentences=total,
+            true_positives=tp,
+            true_negatives=tn,
+            false_positives=fp,
+            false_negatives=fn,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1_score=f1,
+            mean_latency_ms=mean_latency,
+        )

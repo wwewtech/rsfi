@@ -9,9 +9,20 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tests.test_geometry import test_normalization, test_geodesic_distance, test_log_map_axioms, test_exp_map
-from tests.test_whitening import test_spherical_whitening_fit_transform, test_unfitted_transform_raises
-from tests.test_filter import test_rsfi_pythagoras_decomposition, test_multidimensional_rsfi_filter
+from tests.test_geometry import (
+    test_normalization,
+    test_geodesic_distance,
+    test_log_map_axioms,
+    test_exp_map,
+)
+from tests.test_whitening import (
+    test_spherical_whitening_fit_transform,
+    test_unfitted_transform_raises,
+)
+from tests.test_filter import (
+    test_rsfi_pythagoras_decomposition,
+    test_multidimensional_rsfi_filter,
+)
 
 
 def main():
