@@ -123,22 +123,6 @@ Executable tests are structured within the unified `src` package:
    python src/tests/test4_subspace.py
    ```
 
----
-
-## 🎓 Academic Citation
-
-This research strictly adheres to the standards of the Higher Attestation Commission (VAK RF) and the JailbreakBench validation framework (NeurIPS 2024).
-
-If you use the **RSFI** algorithm or materials from this repository in your academic publications, please cite our work:
-
-```bibtex
-@article{osanov2026rsfi,
-  title={Метод динамического контроля семантического дрейфа и сикофантии языковых моделей на основе неевклидовой геометрии и Риманова индекса системной лояльности (RSFI)},
-  author={Osanov, P. V.},
-  journal={Bulletin of PSUTI / VAK RF},
-  year={2026}
-}
-```
 
 ---
 
