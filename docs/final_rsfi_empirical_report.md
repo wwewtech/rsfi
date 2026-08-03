@@ -55,7 +55,7 @@
 
 ### 3.1 Монотонный рост ROC-AUC от размерности подпространства $k$
 
-![Subspace Dimension Sweep](file:///D:/study_in_psuti/%D0%BA%D1%82%D0%BD/%D1%8D%D1%82%D0%BE%20%D1%83%D0%B6%D0%B5%20%D0%BF%D0%B8%D0%B7%D0%B4%D0%B5%D1%86/rsfi/docs/figures/subspace_dimension_sweep.png)
+![Subspace Dimension Sweep](file:///D:/study_in_psuti/KTN/eto/rsfi/docs/figures/subspace_dimension_sweep.png)
 
 | Подпространство $k$ | Объясненная дисперсия атак | **ROC-AUC Score** | Задержка на промпт ($\mu s$) |
 | :-: | :-: | :-: | :-: |
@@ -70,7 +70,7 @@
 
 ### 3.2 Сравнительный батл против научных бейзлайнов
 
-![ROC and Precision-Recall Curves](file:///D:/study_in_psuti/%D0%BA%D1%82%D0%BD/%D1%8D%D1%82%D0%BE%20%D1%83%D0%B6%D0%B5%20%D0%BF%D0%B8%D0%B7%D0%B4%D0%B5%D1%86/rsfi/docs/figures/roc_pr_curves.png)
+![ROC and Precision-Recall Curves](file:///D:/study_in_psuti/KTN/eto/rsfi/docs/figures/roc_pr_curves.png)
 
 | Метод защиты | ROC-AUC | Mean Latency | Обучение (Need Labels?) |
 | :--- | :-: | :-: | :-: |
@@ -88,10 +88,10 @@
 ### 3.3 Графический профиль задержки и плотности скоров
 
 #### 1. Разделение распределений скоров RSFI (Density Plot)
-![Score Distributions](file:///D:/study_in_psuti/%D0%BA%D1%82%D0%BD/%D1%8D%D1%82%D0%BE%20%D1%83%D0%B6%D0%B5%20%D0%BF%D0%B8%D0%B7%D0%B4%D0%B5%D1%86/rsfi/docs/figures/score_distributions.png)
+![Score Distributions](file:///D:/study_in_psuti/KTN/eto/rsfi/docs/figures/score_distributions.png)
 
 #### 2. Микросекундный профиль задержки (22 мкс)
-![Latency Profiling](file:///D:/study_in_psuti/%D0%BA%D1%82%D0%BD/%D1%8D%D1%82%D0%BE%20%D1%83%D0%B6%D0%B5%20%D0%BF%D0%B8%D0%B7%D0%B4%D0%B5%D1%86/rsfi/docs/figures/latency_profiling.png)
+![Latency Profiling](file:///D:/study_in_psuti/KTN/eto/rsfi/docs/figures/latency_profiling.png)
 
 ---
 
