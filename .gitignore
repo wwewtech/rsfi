@@ -48,3 +48,5 @@ Thumbs.db
 ###
 hf_cache
 .pytest_cache
+# Independent audit artifacts (large embedding caches)
+emb_cache/
