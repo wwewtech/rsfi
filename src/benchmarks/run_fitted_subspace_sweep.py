@@ -65,9 +65,8 @@ def run_subspace_sweep(
         test_raw = raw_embeddings[test_idx]
         y_test = y_true[test_idx]
 
-        # Fit ZCA Whitening on Safe Reference Set + Neutral Corpus
-        calib_corpus = [s.text for s in samples if s.scenario_type == "SAFE"][:800]
-        calib_raw = model.encode(calib_corpus, convert_to_numpy=True)
+        # Fit ZCA Whitening ONLY on reference safe set (no test leakage)
+        calib_raw = raw_embeddings[ref_safe_idx]
         whitening = SphericalWhitening(dim=dim)
         whitening.fit(RiemannianSphere.normalize(calib_raw))
 
@@ -91,21 +90,54 @@ def run_subspace_sweep(
 
         test_whitened = whitening.transform(test_raw)
 
+        # Split test into val and final test for honest k selection
+        n_test = len(test_idx)
+        val_size = min(200, n_test // 3)
+        val_idx_local = np.arange(val_size)
+        final_test_idx_local = np.arange(val_size, n_test)
+
+        y_val = y_test[val_idx_local]
+        y_final_test = y_test[final_test_idx_local]
+
+        # Find best k on validation set
+        best_k = None
+        best_val_auc = 0.0
+        k_val_aucs = {}
+
         for k in [1, 5, 10, 20, 30, 40]:
             fitted_threat_vectors = Vh[:k]
             rsfi_filter = MultiDimensionalRSFIFilter(
                 S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5, is_tangent=True
             )
 
-            rsfi_scores = []
-            t0 = time.perf_counter()
-            for i in range(len(test_whitened)):
+            val_scores = []
+            for i in val_idx_local:
                 res = rsfi_filter.evaluate(test_whitened[i])
-                rsfi_scores.append(-res["rsfi"])
-            lat_ms = (time.perf_counter() - t0) * 1000.0 / len(test_whitened)
+                val_scores.append(-res["rsfi"])
 
-            auc_score = float(roc_auc_score(y_test, np.array(rsfi_scores)))
-            var_exp = float(np.sum(Sigma[:k] ** 2) / np.sum(Sigma**2) * 100.0)
+            val_auc = float(roc_auc_score(y_val, np.array(val_scores)))
+            k_val_aucs[k] = val_auc
+
+            if val_auc > best_val_auc:
+                best_val_auc = val_auc
+                best_k = k
+
+        # Evaluate best k on final test set
+        fitted_threat_vectors = Vh[:best_k]
+        rsfi_filter = MultiDimensionalRSFIFilter(
+            S, fitted_threat_vectors, alpha=1.5, beta=0.2, tau=0.5, is_tangent=True
+        )
+
+        rsfi_scores = []
+        t0 = time.perf_counter()
+        for i in final_test_idx_local:
+            res = rsfi_filter.evaluate(test_whitened[i])
+            rsfi_scores.append(-res["rsfi"])
+        lat_ms = (time.perf_counter() - t0) * 1000.0 / len(final_test_idx_local)
+
+        auc_score = float(roc_auc_score(y_final_test, np.array(rsfi_scores)))
+        k = best_k
+        var_exp = float(np.sum(Sigma[:k] ** 2) / np.sum(Sigma**2) * 100.0)
 
             sweep_results.append(
                 {
@@ -114,10 +146,13 @@ def run_subspace_sweep(
                     "roc_auc": auc_score,
                     "explained_var_pct": var_exp,
                     "latency_us": lat_ms * 1000.0,
+                    "best_k_on_val": best_k,
+                    "val_auc": best_val_auc,
                 }
             )
             print(
-                f"N_ref={n_ref:3d} | k={k:2d} | Explained Var={var_exp:5.1f}% | ROC-AUC = {auc_score:.4f} | Latency = {lat_ms*1000.0:.1f} us"
+                f"N_ref={n_ref:3d} | best_k={best_k:2d} (val_auc={best_val_auc:.4f}) | "
+                f"Test ROC-AUC = {auc_score:.4f} | Latency = {lat_ms*1000.0:.1f} us"
             )
 
     df_res = pd.DataFrame(sweep_results)

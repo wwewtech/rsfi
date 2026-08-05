@@ -280,19 +280,25 @@ def run_comprehensive_benchmark(
     # Prepare Evaluators
     print("[EVALUATION] Running Multi-Baseline Evaluation Protocol...")
 
-    # Train Logistic Regression Baseline on 30% data split
+    # Train Logistic Regression Baseline - FIX: split properly, no test leakage
     n_train = int(0.3 * len(samples))
+    train_idx = np.arange(n_train)
+    test_idx = np.arange(n_train, len(samples))
+
     clf_logreg = LogisticRegression(max_iter=1000)
-    clf_logreg.fit(raw_embeddings[:n_train], y_true[:n_train])
-    logreg_scores = clf_logreg.predict_proba(raw_embeddings)[:, 1]
+    clf_logreg.fit(raw_embeddings[train_idx], y_true[train_idx])
+    logreg_scores_full = np.zeros(len(samples))
+    logreg_scores_full[test_idx] = clf_logreg.predict_proba(raw_embeddings[test_idx])[:, 1]
+    # For train set, use out-of-fold prediction or set to NaN (we'll only eval on test)
+    logreg_scores = logreg_scores_full
 
     # Compute Naive Cosine Similarity Baseline to first threat anchor
     norm_embeddings = RiemannianSphere.normalize(raw_embeddings)
     norm_threat0 = RiemannianSphere.normalize(raw_threats[0:1])[0]
     cosine_scores = np.dot(norm_embeddings, norm_threat0)
 
-    # Compute Mahalanobis Distance Baseline
-    cov = np.cov(raw_embeddings.T) + 1e-4 * np.eye(dim)
+    # Compute Mahalanobis Distance Baseline - FIX: use only training set covariance
+    cov = np.cov(raw_embeddings[train_idx].T) + 1e-4 * np.eye(dim)
     cov_inv = np.linalg.inv(cov)
     diff = raw_embeddings - raw_threats[0]
     mahalanobis_scores = np.sqrt(np.sum(np.dot(diff, cov_inv) * diff, axis=1))
@@ -338,15 +344,16 @@ def run_comprehensive_benchmark(
     rsfi_1d_scores = np.array(rsfi_1d_scores)
     rsfi_k10_scores = np.array(rsfi_k10_scores)
 
-    # Compute ROC-AUC Scores across all models
-    auc_rsfi_k10 = float(roc_auc_score(y_true, rsfi_k10_scores))
-    auc_rsfi_1d = float(roc_auc_score(y_true, rsfi_1d_scores))
-    auc_cosine = float(roc_auc_score(y_true, cosine_scores))
-    auc_mahalanobis = float(roc_auc_score(y_true, -mahalanobis_scores))
-    auc_logreg = float(roc_auc_score(y_true, logreg_scores))
+    # Compute ROC-AUC Scores across all models (only on test set)
+    y_test = y_true[test_idx]
+    auc_rsfi_k10 = float(roc_auc_score(y_test, np.array(rsfi_k10_scores)[test_idx]))
+    auc_rsfi_1d = float(roc_auc_score(y_test, np.array(rsfi_1d_scores)[test_idx]))
+    auc_cosine = float(roc_auc_score(y_test, cosine_scores[test_idx]))
+    auc_mahalanobis = float(roc_auc_score(y_test, -mahalanobis_scores[test_idx]))
+    auc_logreg = float(roc_auc_score(y_test, logreg_scores[test_idx]))
 
-    # Compute PR-AUC for RSFI k=10
-    prec_k10, rec_k10, _ = precision_recall_curve(y_true, rsfi_k10_scores)
+    # Compute PR-AUC for RSFI k=10 (on test set only)
+    prec_k10, rec_k10, _ = precision_recall_curve(y_test, np.array(rsfi_k10_scores)[test_idx])
     pr_auc_k10 = float(auc(rec_k10, prec_k10))
 
     # Save Telemetry CSV

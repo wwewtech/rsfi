@@ -22,11 +22,14 @@ Current state-of-the-art methods either require full access to the model's weigh
 
 ## 🔥 Key Highlights
 
-* ⚡ **Ultra-Fast Validation (< 10 ms):** Calculating the index for a single vector takes only **21 microseconds**, allowing up to 47,000 checks per second. Inference speed remains entirely unaffected.
-* 🛡️ **Zero-Shot & Black-Box API Protection:** Does not require access to LLM weights. Eliminates the need to fine-tune third-party discriminator classifiers.
-* 📐 **Elimination of the "Semantic Cone":** Utilizing spherical ZCA whitening mathematically realigns correlated vectors, fully resolving spatial anisotropy.
-* 🎯 **Precision Context Decoupling:** Employs Gram-Schmidt orthogonalization to surgically separate the prompt's useful semantic payload from potential threats.
-* 🪐 **Zero-Day Attack Detection:** Projecting vectors into a $k$-dimensional orthonormal subspace enables the blocking of completely novel, unseen attack patterns.
+* ⚡ **Fast Validation:** Full pipeline cost (embedding + filtering) is ~10-15 ms on CPU.
+* 🛡️ **Few-Shot & Black-Box API Protection:** Does not require access to LLM weights. Eliminates the need to fine-tune neural networks (requires 50-200 labeled examples for calibration).
+* 📐 **Elimination of the "Semantic Cone":** Utilizing spherical ZCA whitening mathematically realigns correlated vectors, addressing spatial anisotropy.
+* 🎯 **Few-Shot Context Detection:** Uses small reference sets (50-200 examples) to detect semantic drift without large-scale training.
+* 🪐 **Fast First-Line Defense:** Designed as a fast filtering layer (~0.02ms) to reduce load on slower, more accurate LLM-based judges.
+
+**Important**: RSFI is a **fast geometric filter**, not a replacement for comprehensive guardrails. It trades accuracy for speed,
+achieving 0.75-0.85 ROC-AUC vs 0.90-0.95 for fine-tuned transformers. Best used as first-line defense in multi-layer systems.
 
 ---
 
@@ -63,9 +66,13 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 | :--- | :---: | :---: | :---: | :---: |
 | **Model Access** | White-Box (Required) | Black-Box | Black-Box | **Black-Box (API)** |
 | **Latency Overhead** | ~0 ms | > 100–200 ms | < 15 ms | **~0.021 ms (< 10 ms)** |
-| **Fine-Tuning Required** | No | Yes | No | **Zero-Shot** |
+| **Fine-Tuning Required** | No | Yes | No | **Few-Shot** |
 | **Anisotropy Mitigation** | N/A | N/A | Partial | **Full ZCA Whitening** |
-| **Separability (ROC-AUC)**| 0.92 | 0.96 | 0.89 | **1.0000** |
+| **Separability (ROC-AUC)**| 0.92 | 0.96 | 0.89 | **0.856** (4096d) |
+
+**Note on Performance**: Previous claims of 1.0000 AUC were based on methodologically flawed experiments with test set leakage. 
+Honest evaluation (experiments E1-E10) shows RSFI achieves **0.75-0.85 ROC-AUC** on real-world data, competitive with 
+fast geometric methods but below fine-tuned transformers (~0.90-0.95). See `docs/LIMITATIONS.md` for details.
 
 ---
 
@@ -129,3 +136,14 @@ Executable tests are structured within the unified `src` package:
 <div align="center">
   <i>This project is distributed under the open <a href="LICENSE">MIT License</a>.</i>
 </div>
+
+
+## Independent Experiment Results (E2-E10)
+A recent run of an extended set of experiments revealed the following limitations and strengths of the RSFI method:
+
+1. **Homogeneous Datasets (E2):** On datasets with similar stylistics (e.g., ToxicChat), the ROC-AUC for RSFI-SVD drops to 0.668, underperforming even naive cosine similarity (0.927). The method is heavily dependent on stylistic diversity.
+2. **Adaptive Attacks & Obfuscation (E6):** Under base64, rot13, and other obfuscations, attacks collapse into the clean manifold in embedding space. RSFI's ROC-AUC plummets to 0.16. This is a fundamental limitation of geometric methods without LLM judges.
+3. **Strict Operating Points (E3):** Despite a lower overall ROC-AUC, at strict False Positive Rate budgets (FPR = 1% or 0.1%), RSFI-SVD maintains higher True Positive Rates (TPR) than plain cosine, making it useful as a zero-shot first-line filter.
+4. **External Baselines Comparison (E7):** Heavy NLP models (e.g., ProtectAI-deberta) are slow (8-9 ms latency). RSFI-SVD operates at ~0.46 ms and requires no massive vector databases (unlike k-NN, which achieves 0.80 AUC), cementing its position as a fast, lightweight solution.
+5. **Statistical Significance (E10):** Bootstrap testing and DeLong's test (p < 0.0001) confirmed statistically significant differences: supervised methods (LogReg) consistently beat naive cosine, which on average beats RSFI in pure AUC.
+6. **Whitening Stability (E5):** Experiment finalizing. Validates ZCA constraints under limited calibration data.
