@@ -36,7 +36,7 @@ def run_subspace_sweep(
     model = SentenceTransformer(model_name, cache_folder=CACHE_DIR)
     dim = model.get_sentence_embedding_dimension()
 
-    from rsfi.benchmarks.wildchat_10k import WildChatBenchmarkRunner
+    from rsfi.datasets.wildchat_10k import WildChatBenchmarkRunner
 
     runner = WildChatBenchmarkRunner(model_name=model_name, cache_folder=CACHE_DIR)
     samples = runner.load_dataset_samples(target_per_class=n_samples_per_class)

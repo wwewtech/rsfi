@@ -2,7 +2,7 @@
 RSFI Benchmark modules.
 """
 
-from rsfi.benchmarks.wildchat_10k import (
+from rsfi.datasets.wildchat_10k import (
     WildChatBenchmarkRunner,
     WildPromptSample,
     WildEvaluationTelemetry,

@@ -14,7 +14,7 @@ from sentence_transformers import SentenceTransformer
 from rsfi.geometry import RiemannianSphere
 from rsfi.whitening import SphericalWhitening
 from rsfi.filter import MultiDimensionalRSFIFilter
-from rsfi.benchmarks.wildchat_10k import WildPromptSample
+from rsfi.datasets.wildchat_10k import WildPromptSample
 
 
 def generate_samples(
