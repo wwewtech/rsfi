@@ -72,7 +72,7 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 
 **Note on Performance**: Previous claims of 1.0000 AUC were based on methodologically flawed experiments with test set leakage. 
 Honest evaluation (experiments E1-E10) shows RSFI achieves **0.75-0.85 ROC-AUC** on real-world data, competitive with 
-fast geometric methods but below fine-tuned transformers (~0.90-0.95). See `docs/LIMITATIONS.md` for details.
+fast geometric methods but below fine-tuned transformers (~0.90-0.95). See `docs/RESEARCH_REPORT.md` for details.
 
 ---
 
@@ -138,12 +138,4 @@ Executable tests are structured within the unified `src` package:
 </div>
 
 
-## Independent Experiment Results (E2-E10)
-A recent run of an extended set of experiments revealed the following limitations and strengths of the RSFI method:
 
-1. **Homogeneous Datasets (E2):** On datasets with similar stylistics (e.g., ToxicChat), the ROC-AUC for RSFI-SVD drops to 0.668, underperforming even naive cosine similarity (0.927). The method is heavily dependent on stylistic diversity.
-2. **Adaptive Attacks & Obfuscation (E6):** Under base64, rot13, and other obfuscations, attacks collapse into the clean manifold in embedding space. RSFI's ROC-AUC plummets to 0.16. This is a fundamental limitation of geometric methods without LLM judges.
-3. **Strict Operating Points (E3):** Despite a lower overall ROC-AUC, at strict False Positive Rate budgets (FPR = 1% or 0.1%), RSFI-SVD maintains higher True Positive Rates (TPR) than plain cosine, making it useful as a zero-shot first-line filter.
-4. **External Baselines Comparison (E7):** Heavy NLP models (e.g., ProtectAI-deberta) are slow (8-9 ms latency). RSFI-SVD operates at ~0.46 ms and requires no massive vector databases (unlike k-NN, which achieves 0.80 AUC), cementing its position as a fast, lightweight solution.
-5. **Statistical Significance (E10):** Bootstrap testing and DeLong's test (p < 0.0001) confirmed statistically significant differences: supervised methods (LogReg) consistently beat naive cosine, which on average beats RSFI in pure AUC.
-6. **Whitening Stability (E5):** Experiment finalizing. Validates ZCA constraints under limited calibration data.
