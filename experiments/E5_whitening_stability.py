@@ -75,7 +75,7 @@ def load_dataset() -> Tuple[List[str], List[int]]:
     print("Loading dataset...")
 
     # Try wild dataset
-    results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
+    results_path = Path(__file__).parent.parent / "data" / "data/results" / "sfi_wild_10k_results.csv"
     if results_path.exists():
         df = pd.read_csv(results_path)
         texts = df['text'].tolist()
@@ -275,7 +275,7 @@ def main():
 
     # Save results
     results_df = pd.DataFrame(all_results)
-    output_path = Path(__file__).parent.parent / "results" / "E5_whitening_stability.csv"
+    output_path = Path(__file__).parent.parent / "data/results" / "E5_whitening_stability.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     results_df.to_csv(output_path, index=False)
 

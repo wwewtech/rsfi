@@ -141,7 +141,7 @@ def load_base_attacks() -> List[str]:
 
     # Try to load from dataset if available
     try:
-        results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
+        results_path = Path(__file__).parent.parent / "data" / "data/results" / "sfi_wild_10k_results.csv"
         if results_path.exists():
             df = pd.read_csv(results_path)
             malicious = df[df['is_blocked'] == 1]['text'].tolist()
@@ -169,7 +169,7 @@ def load_safe_texts() -> List[str]:
 
     # Try to load from dataset
     try:
-        results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
+        results_path = Path(__file__).parent.parent / "data" / "data/results" / "sfi_wild_10k_results.csv"
         if results_path.exists():
             df = pd.read_csv(results_path)
             benign = df[df['is_blocked'] == 0]['text'].tolist()
@@ -296,7 +296,7 @@ def main():
 
     # Save results
     results_df = pd.DataFrame(all_results)
-    output_path = Path(__file__).parent.parent / "results" / "E6_adaptive_attacks.csv"
+    output_path = Path(__file__).parent.parent / "data/results" / "E6_adaptive_attacks.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     results_df.to_csv(output_path, index=False)
 
