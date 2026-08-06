@@ -50,3 +50,9 @@ hf_cache
 .pytest_cache
 # Independent audit artifacts (large embedding caches)
 emb_cache/
+
+# Generated experiment outputs (local runs)
+# Tracked baseline results (E2-E10) are kept via git add -f
+data/results/*.csv
+data/reports/*.csv
+!data/results/README.md
