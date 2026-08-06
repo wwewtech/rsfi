@@ -25,21 +25,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .
 
-      - name: Run RSFI Unit Test Suite
-        run: python tests/run_all_tests.py
+      - name: Run unit tests (geometry, whitening, filters)
+        run: pytest tests/test_geometry.py tests/test_whitening.py tests/test_filter.py -v
 
-      - name: Run Advanced Mathematical Stress & Boundary Tests
-        run: python tests/test_math_advanced.py
-
-      - name: Run Legacy Test 1 (Basic Drift & Accuracy)
-        run: python tests/legacy/test_ai.py
-
-      - name: Run Legacy Test 2 (10-Stage ZCA vs PCA & Latency Benchmark)
-        run: python tests/legacy/test2_aai.py
-
-      - name: Run Legacy Test 3 (Dynamic Context Drift Simulation)
-        run: python tests/legacy/test3_advanced.py
-
-      - name: Run Legacy Test 4 (k-Subspace Threat Decoupling & Zero-Day Detection)
-        run: python tests/legacy/test4_subspace.py
+      - name: Run advanced mathematical stress tests
+        run: pytest tests/test_math_advanced.py -v

@@ -79,23 +79,32 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 
 ## 📂 Архитектура репозитория
 
-Вся кодовая база организована в соответствии со стандартами современных Python-пакетов и принципами Open Science:
+Кодовая база организована по стандартам современных Python-пакетов:
 
 ```text
 📦 rsfi
- ┣ 📂 data           # Датасеты и экспериментальные данные
- ┃ ┣ 📂 results      # Результаты бенчмарков (*.csv)
- ┃ ┗ 📂 telemetry    # Отчеты и логи телеметрии (*.json)
- ┣ 📂 docs           # Научная документация и черновики статей
- ┃ ┣ 📂 analogues    # Подробный разбор и сравнение существующих методов
- ┃ ┣ 📜 math.md      # Вывод Римановой геометрии и формулы RSFI
- ┃ ┗ 📜 ...          # Черновики ВАК, архитектурные решения, Open Science дизайн
- ┣ 📂 figures        # Графические артефакты, ROC-кривые и графики latency (*.png)
- ┗ 📂 src            # Исходный код и алгоритмы
-   ┣ 📂 analysis     # Скрипты оценки и анализа (LLM Judge)
-   ┣ 📂 benchmarks   # Скрипты запуска JailbreakBench и Wild-10k
-   ┣ 📂 tests        # Набор unit-тестов для валидации гипотез и ZCA
-   ┗ 📂 utils        # Вспомогательные генераторы отчетов
+ ┣ 📂 src/rsfi          # Основной пакет библиотеки
+ ┃ ┣ 📜 geometry.py     # RiemannianSphere: геодезические расстояния, Log/Exp на S^(d-1)
+ ┃ ┣ 📜 whitening.py    # SphericalWhitening: ZCA-обеливание с L2 ренормализацией
+ ┃ ┣ 📜 filter.py       # RSFIFilter (1D) и MultiDimensionalRSFIFilter (k-D)
+ ┃ ┣ 📜 engine.py       # ProductionSFIEngine и SFIBenchmarkRunner (sentence-transformers)
+ ┃ ┗ 📂 datasets        # WildChatBenchmarkRunner (интеграция с HuggingFace datasets)
+ ┣ 📂 tests             # Pytest unit-тесты и стресс-тесты
+ ┃ ┣ 📜 test_geometry.py    # Верификация аксиом римановой геометрии
+ ┃ ┣ 📜 test_whitening.py   # Инварианты ZCA fit/transform
+ ┃ ┣ 📜 test_filter.py      # Разложение Пифагора и ортонормальность QR
+ ┃ ┗ 📜 test_math_advanced.py  # Граничные стресс-тесты, сингулярности, rank-deficiency, float precision
+ ┣ 📂 experiments        # Исполняемые скрипты экспериментов (E2-E10)
+ ┃ ┗ 📂 archive          # Устаревшие демо и ранние скрипты оценки
+ ┣ 📂 data               # Результаты экспериментов
+ ┃ ┣ 📂 results          # Выходные данные бенчмарков (*.csv)
+ ┃ ┣ 📂 reports          # Сгенерированные отчёты
+ ┃ ┗ 📂 figures          # ROC-кривые и графики задержки (*.png)
+ ┗ 📂 docs               # Документация
+   ┣ 📜 RESEARCH_REPORT.md  # Честные результаты оценки (E1-E10)
+   ┣ 📜 math.md             # Полные математические выкладки
+   ┣ 📜 PROJECT_EVOLUTION.md # История проекта и коррекции методологии
+   ┗ 📂 archive              # Исторические черновики и журналы аудита
 ```
 
 ---
@@ -104,38 +113,39 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 
 ### Требования
 - Python 3.10+
-- `numpy`, `scipy`, `scikit-learn`, `matplotlib`
+- Зависимости указаны в `requirements.txt`
 
-### Установка зависимостей
+### Установка
 
 ```bash
 git clone https://github.com/wwewtech/rsfi.git
 cd rsfi
-pip install numpy scipy scikit-learn matplotlib
+pip install -r requirements.txt
+pip install -e .
 ```
 
-### Запуск ключевых бенчмарков
+### Запуск тестов
 
-Доступ к исполняемым тестам осуществляется через единый Python-пакет `src`:
+```bash
+# Запуск всех unit-тестов
+pytest tests/ -v
 
-1. **Комплексная валидация математики (10 этапов) и замер задержки**:
-   ```bash
-   python src/tests/test2_aai.py
-   ```
-2. **Симуляция семантического дрейфа в многошаговом диалоге**:
-   ```bash
-   python src/tests/test3_advanced.py
-   ```
-3. **Блокировка Zero-Day атак через $k$-мерное подпространство**:
-   ```bash
-   python src/tests/test4_subspace.py
-   ```
+# Только продвинутые математические стресс-тесты
+pytest tests/test_math_advanced.py -v
+```
 
----
+### Запуск экспериментов
 
+```bash
+# Оценка на гомогенных датасетах (E2)
+python experiments/E2_homogeneous_datasets.py
 
+# Анализ строгих операционных точек FPR (E3)
+python experiments/E3_operating_point.py
 
----
+# Сравнение с внешними бейзлайнами (E7)
+python experiments/E7_external_baselines.py
+```
 
 <div align="center">
   <i>Проект распространяется под открытой лицензией <a href="LICENSE">MIT License</a>.</i>

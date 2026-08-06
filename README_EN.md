@@ -78,23 +78,32 @@ fast geometric methods but below fine-tuned transformers (~0.90-0.95). See `docs
 
 ## 📂 Repository Architecture
 
-The entire codebase is structured according to modern Python package standards and Open Science principles:
+The codebase follows modern Python package standards:
 
 ```text
 📦 rsfi
- ┣ 📂 data           # Datasets and experimental data
- ┃ ┣ 📂 results      # Benchmark outputs (*.csv)
- ┃ ┗ 📂 telemetry    # Telemetry reports and logs (*.json)
- ┣ 📂 docs           # Academic documentation and paper drafts
- ┃ ┣ 📂 analogues    # Detailed analysis and comparison of existing methods
- ┃ ┣ 📜 math.md      # Riemannian geometry derivations and RSFI formulas
- ┃ ┗ 📜 ...          # Russian VAK drafts, architecture logs, Open Science designs
- ┣ 📂 figures        # Graphical artifacts, ROC curves, and latency plots (*.png)
- ┗ 📂 src            # Source code and algorithms
-   ┣ 📂 analysis     # Evaluation scripts and LLM Judge integrations
-   ┣ 📂 benchmarks   # Execution scripts for JailbreakBench and Wild-10k
-   ┣ 📂 tests        # Unit tests for hypothesis validation and ZCA verification
-   ┗ 📂 utils        # Auxiliary report generators
+ ┣ 📂 src/rsfi          # Core library package
+ ┃ ┣ 📜 geometry.py     # RiemannianSphere: geodesic distance, Log/Exp maps on S^(d-1)
+ ┃ ┣ 📜 whitening.py    # SphericalWhitening: ZCA whitening with L2 re-projection
+ ┃ ┣ 📜 filter.py       # RSFIFilter (1D) & MultiDimensionalRSFIFilter (k-D)
+ ┃ ┣ 📜 engine.py       # ProductionSFIEngine & SFIBenchmarkRunner (sentence-transformers)
+ ┃ ┗ 📂 datasets        # WildChatBenchmarkRunner (HuggingFace dataset integration)
+ ┣ 📂 tests             # Pytest unit & stress test suite
+ ┃ ┣ 📜 test_geometry.py    # Riemannian axiom verification
+ ┃ ┣ 📜 test_whitening.py   # ZCA fit/transform invariants
+ ┃ ┣ 📜 test_filter.py      # Pythagorean decomposition & QR orthonormality
+ ┃ ┗ 📜 test_math_advanced.py  # Boundary stress, singularities, rank-deficiency, float precision
+ ┣ 📂 experiments        # Runnable experiment scripts (E2-E10)
+ ┃ ┗ 📂 archive          # Legacy demos and early evaluation scripts
+ ┣ 📂 data               # Experimental outputs
+ ┃ ┣ 📂 results          # Benchmark outputs (*.csv)
+ ┃ ┣ 📂 reports          # Generated reports
+ ┃ ┗ 📂 figures          # ROC curves and latency plots (*.png)
+ ┗ 📂 docs               # Documentation
+   ┣ 📜 RESEARCH_REPORT.md  # Honest evaluation results (E1-E10)
+   ┣ 📜 math.md             # Full mathematical derivations
+   ┣ 📜 PROJECT_EVOLUTION.md # Project history and methodology corrections
+   ┗ 📂 archive              # Historical drafts and audit logs
 ```
 
 ---
@@ -103,32 +112,39 @@ The entire codebase is structured according to modern Python package standards a
 
 ### Requirements
 - Python 3.10+
-- `numpy`, `scipy`, `scikit-learn`, `matplotlib`
+- Dependencies listed in `requirements.txt`
 
 ### Installation
 
 ```bash
 git clone https://github.com/wwewtech/rsfi.git
 cd rsfi
-pip install numpy scipy scikit-learn matplotlib
+pip install -r requirements.txt
+pip install -e .
 ```
 
-### Running Core Benchmarks
+### Running Tests
 
-Executable tests are structured within the unified `src` package:
+```bash
+# Run all unit tests
+pytest tests/ -v
 
-1. **Comprehensive Math Validation (10 Stages) & Latency Test**:
-   ```bash
-   python src/tests/test2_aai.py
-   ```
-2. **Semantic Drift Simulation in Multi-Turn Dialogues**:
-   ```bash
-   python src/tests/test3_advanced.py
-   ```
-3. **Zero-Day Attack Blocking via $k$-Dimensional Subspace**:
-   ```bash
-   python src/tests/test4_subspace.py
-   ```
+# Run only the advanced mathematical stress suite
+pytest tests/test_math_advanced.py -v
+```
+
+### Running Experiments
+
+```bash
+# Homogeneous dataset evaluation (E2)
+python experiments/E2_homogeneous_datasets.py
+
+# Strict FPR operating point analysis (E3)
+python experiments/E3_operating_point.py
+
+# External baselines comparison (E7)
+python experiments/E7_external_baselines.py
+```
 
 
 ---
