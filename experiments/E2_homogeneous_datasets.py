@@ -113,7 +113,7 @@ def load_wild_dataset() -> Tuple[List[str], List[int]]:
     print("Loading wild dataset...")
     try:
         # Try to find existing results
-        results_path = Path(__file__).parent.parent / "data" / "data/results" / "sfi_wild_10k_results.csv"
+        results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
         if not results_path.exists():
             print(f"  Wild dataset not found at {results_path}")
             return [], []

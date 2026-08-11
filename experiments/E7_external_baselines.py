@@ -239,7 +239,7 @@ def load_dataset() -> Tuple[List[str], List[int]]:
     print("Loading dataset...")
 
     # Try wild dataset first
-    results_path = Path(__file__).parent.parent / "data" / "data/results" / "sfi_wild_10k_results.csv"
+    results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
     if results_path.exists():
         df = pd.read_csv(results_path)
         texts = df['text'].tolist()
