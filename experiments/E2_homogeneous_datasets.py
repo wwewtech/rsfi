@@ -32,18 +32,18 @@ from rsfi.whitening import SphericalWhitening
 
 
 def load_toxicchat() -> Tuple[List[str], List[int]]:
-    """Load ToxicChat-0124 dataset from LMSYS."""
+    """Load ToxicChat-0124 dataset directly via CSV."""
     print("Loading ToxicChat-0124...")
     try:
-        ds = load_dataset("lmsys/toxic-chat", "toxicchat0124")
+        url = "https://huggingface.co/datasets/lmsys/toxic-chat/raw/main/data/0124/toxic-chat_annotation_train.csv"
+        df = pd.read_csv(url)
 
         texts = []
         labels = []
 
-        # Process train split
-        for item in ds['train']:
-            text = item.get('user_input', '')
-            if not text:
+        for _, item in df.iterrows():
+            text = str(item.get('user_input', ''))
+            if not text or text == 'nan':
                 continue
 
             toxicity = item.get('toxicity', 0)
@@ -55,7 +55,7 @@ def load_toxicchat() -> Tuple[List[str], List[int]]:
             elif toxicity == 0 and jailbreaking == 0:
                 labels.append(0)
             else:
-                continue  # Skip unclear cases
+                continue
 
             texts.append(text)
 
@@ -75,35 +75,26 @@ def load_xstest() -> Tuple[List[str], List[int]]:
     but opposite safety labels.
     """
     print("Loading XSTest-v2...")
+    # 1. Try direct raw CSV from canonical github repo
     try:
-        # Try to load from HuggingFace
-        ds = load_dataset("paul-rottger/exaggerated-safety-v01", split="test")
-
-        texts = []
-        labels = []
-
-        for item in ds:
-            prompt = item.get('prompt', '')
-            label_str = item.get('label', '')
-
-            if not prompt:
-                continue
-
-            # label: "safe" or "unsafe"
-            if label_str == "unsafe":
-                labels.append(1)
-            elif label_str == "safe":
-                labels.append(0)
-            else:
-                continue
-
-            texts.append(prompt)
-
-        print(f"  Loaded {len(texts)} examples ({sum(labels)} unsafe, {len(labels)-sum(labels)} safe)")
+        url = "https://raw.githubusercontent.com/paul-rottger/xstest/main/xstest_prompts.csv"
+        df = pd.read_csv(url)
+        texts = df['prompt'].tolist()
+        labels = (df['label'] == 'unsafe').astype(int).tolist()
+        print(f"  Loaded {len(texts)} examples from GitHub ({sum(labels)} unsafe, {len(labels)-sum(labels)} safe)")
         return texts, labels
+    except Exception as e1:
+        print(f"  Direct GitHub loading failed: {e1}")
 
-    except Exception as e:
-        print(f"  Error loading XSTest: {e}")
+    # 2. Try HuggingFace fallback
+    try:
+        ds = load_dataset("Paul/XSTest", split="test")
+        texts = [item['prompt'] for item in ds if item.get('prompt')]
+        labels = [1 if item.get('label') == 'unsafe' else 0 for item in ds if item.get('prompt')]
+        print(f"  Loaded {len(texts)} examples from HuggingFace ({sum(labels)} unsafe, {len(labels)-sum(labels)} safe)")
+        return texts, labels
+    except Exception as e2:
+        print(f"  HuggingFace loading failed: {e2}")
         print("  Skipping XSTest dataset")
         return [], []
 
@@ -112,7 +103,6 @@ def load_wild_dataset() -> Tuple[List[str], List[int]]:
     """Load existing wild dataset for comparison."""
     print("Loading wild dataset...")
     try:
-        # Try to find existing results
         results_path = Path(__file__).parent.parent / "data" / "results" / "sfi_wild_10k_results.csv"
         if not results_path.exists():
             print(f"  Wild dataset not found at {results_path}")
@@ -120,7 +110,14 @@ def load_wild_dataset() -> Tuple[List[str], List[int]]:
 
         df = pd.read_csv(results_path)
         texts = df['text'].tolist()
-        labels = df['is_jailbreak'].astype(int).tolist()
+        if 'scenario_type' in df.columns:
+            labels = (df['scenario_type'] == 'MALICIOUS').astype(int).tolist()
+        elif 'is_jailbreak' in df.columns:
+            labels = df['is_jailbreak'].astype(int).tolist()
+        elif 'label' in df.columns:
+            labels = df['label'].astype(int).tolist()
+        else:
+            raise ValueError(f"Unknown label column in {results_path}. Columns: {df.columns.tolist()}")
 
         print(f"  Loaded {len(texts)} examples ({sum(labels)} malicious, {len(labels)-sum(labels)} safe)")
         return texts, labels
@@ -215,10 +212,33 @@ def evaluate_dataset(
     print(f"\nEvaluating {dataset_name}...")
     print(f"  Total examples: {len(texts)} ({sum(labels)} malicious)")
 
-    # Encode all texts
-    print("  Encoding texts...")
-    embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=True)
+    # Check cache or encode
+    cache_dir = Path(__file__).parent.parent / "emb_cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{dataset_name}_{model.model_card_data.model_name if hasattr(model, 'model_card_data') and hasattr(model.model_card_data, 'model_name') else 'mpnet'}.npy"
+    if dataset_name == "Wild" and (cache_dir / "all-mpnet-base-v2.npy").exists() and len(texts) == 2000:
+        cache_file = cache_dir / "all-mpnet-base-v2.npy"
+
+    if cache_file.exists():
+        print(f"  Loading cached embeddings from {cache_file}...")
+        embeddings = np.load(cache_file)
+    else:
+        print(f"  Encoding {len(texts)} texts on GPU (batch_size=128)...")
+        embeddings = model.encode(texts, batch_size=128, convert_to_numpy=True, show_progress_bar=True)
+        np.save(cache_file, embeddings)
+        print(f"  Saved embeddings to cache: {cache_file}")
+
     labels = np.array(labels)
+
+    malicious_idx = np.where(labels == 1)[0]
+    safe_idx = np.where(labels == 0)[0]
+
+    cur_n_ref = n_ref
+    cur_n_val = n_val
+    if len(malicious_idx) < n_ref + 50 or len(safe_idx) < n_val + 50:
+        cur_n_ref = max(10, min(n_ref, len(malicious_idx) // 3))
+        cur_n_val = max(10, min(n_val, len(safe_idx) // 3))
+        print(f"  Note: Dataset is compact. Scaled reference budget: n_ref={cur_n_ref}, n_val={cur_n_val}")
 
     results = []
 
@@ -226,25 +246,22 @@ def evaluate_dataset(
         print(f"  Seed {seed+1}/{n_seeds}")
 
         # Split: ref (malicious only), val, test
-        malicious_idx = np.where(labels == 1)[0]
-        safe_idx = np.where(labels == 0)[0]
-
-        if len(malicious_idx) < n_ref + 50:
-            print(f"    WARNING: Not enough malicious examples ({len(malicious_idx)} < {n_ref + 50})")
+        if len(malicious_idx) < cur_n_ref + 10:
+            print(f"    WARNING: Not enough malicious examples ({len(malicious_idx)} < {cur_n_ref + 10})")
             continue
 
-        if len(safe_idx) < n_val + 100:
-            print(f"    WARNING: Not enough safe examples ({len(safe_idx)} < {n_val + 100})")
+        if len(safe_idx) < cur_n_val + 10:
+            print(f"    WARNING: Not enough safe examples ({len(safe_idx)} < {cur_n_val + 10})")
             continue
 
-        # Reference set: n_ref malicious examples
+        # Reference set: cur_n_ref malicious examples
         np.random.seed(seed)
-        ref_idx = np.random.choice(malicious_idx, size=n_ref, replace=False)
+        ref_idx = np.random.choice(malicious_idx, size=cur_n_ref, replace=False)
         remaining_mal_idx = np.setdiff1d(malicious_idx, ref_idx)
 
-        # Validation: n_val examples (balanced)
-        val_mal_idx = np.random.choice(remaining_mal_idx, size=n_val//2, replace=False)
-        val_safe_idx = np.random.choice(safe_idx, size=n_val//2, replace=False)
+        # Validation: cur_n_val examples (balanced)
+        val_mal_idx = np.random.choice(remaining_mal_idx, size=cur_n_val//2, replace=False)
+        val_safe_idx = np.random.choice(safe_idx, size=cur_n_val//2, replace=False)
         val_idx = np.concatenate([val_mal_idx, val_safe_idx])
 
         # Test: everything else
@@ -258,10 +275,10 @@ def evaluate_dataset(
         # Method 1: RSFI-SVD (with whitening)
         scores_rsfi_test = compute_rsfi_scores(
             np.vstack([embeddings[ref_idx], embeddings[test_idx]]),
-            np.arange(n_ref),
-            k=20,
+            np.arange(cur_n_ref),
+            k=min(20, cur_n_ref),
             apply_whitening=True
-        )[n_ref:]
+        )[cur_n_ref:]
 
         auc_rsfi = roc_auc_score(y_test, scores_rsfi_test)
         pr_auc_rsfi = average_precision_score(y_test, scores_rsfi_test)
@@ -270,7 +287,7 @@ def evaluate_dataset(
             'dataset': dataset_name,
             'seed': seed,
             'method': 'RSFI-SVD',
-            'n_ref': n_ref,
+            'n_ref': cur_n_ref,
             'n_val': len(val_idx),
             'n_test': len(test_idx),
             'roc_auc': auc_rsfi,
@@ -280,8 +297,8 @@ def evaluate_dataset(
         # Method 2: Naive cosine
         scores_cosine_test = compute_naive_cosine_scores(
             np.vstack([embeddings[ref_idx], embeddings[test_idx]]),
-            np.arange(n_ref)
-        )[n_ref:]
+            np.arange(cur_n_ref)
+        )[cur_n_ref:]
 
         auc_cosine = roc_auc_score(y_test, scores_cosine_test)
         pr_auc_cosine = average_precision_score(y_test, scores_cosine_test)
@@ -290,7 +307,7 @@ def evaluate_dataset(
             'dataset': dataset_name,
             'seed': seed,
             'method': 'naive_cosine',
-            'n_ref': n_ref,
+            'n_ref': cur_n_ref,
             'n_val': len(val_idx),
             'n_test': len(test_idx),
             'roc_auc': auc_cosine,
@@ -301,8 +318,8 @@ def evaluate_dataset(
         logreg = LogisticRegression(max_iter=1000, random_state=seed)
 
         # Train on ref + val
-        train_idx_local = np.concatenate([np.arange(n_ref), n_ref + np.arange(len(val_idx))])
-        test_idx_local = n_ref + len(val_idx) + np.arange(len(test_idx))
+        train_idx_local = np.concatenate([np.arange(cur_n_ref), cur_n_ref + np.arange(len(val_idx))])
+        test_idx_local = cur_n_ref + len(val_idx) + np.arange(len(test_idx))
 
         X_all = np.vstack([embeddings[ref_idx], embeddings[val_idx], embeddings[test_idx]])
         y_all = np.concatenate([labels[ref_idx], y_val, y_test])
@@ -317,7 +334,7 @@ def evaluate_dataset(
             'dataset': dataset_name,
             'seed': seed,
             'method': 'LogReg',
-            'n_ref': n_ref + len(val_idx),
+            'n_ref': cur_n_ref + len(val_idx),
             'n_val': 0,
             'n_test': len(test_idx),
             'roc_auc': auc_logreg,
@@ -348,8 +365,10 @@ def main():
     print(f"  N_seeds: {N_SEEDS}")
 
     # Load model
-    print("\nLoading embedding model...")
-    model = SentenceTransformer(MODEL_NAME)
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"\nLoading embedding model on {device}...")
+    model = SentenceTransformer(MODEL_NAME, device=device)
 
     # Load datasets
     datasets = []

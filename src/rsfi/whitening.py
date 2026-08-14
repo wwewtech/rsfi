@@ -63,8 +63,12 @@ class SphericalWhitening:
         else:
             raise ValueError(f"Unknown method: {self.method}")
 
-        inv_sqrt_cov = sqrtm(np.linalg.inv(cov))
-        self.W = np.real(inv_sqrt_cov)
+        # Symmetric positive-definite inverse square root via eigenvalue decomposition
+        # W = Sigma^(-1/2) = V * diag(1/sqrt(lambda)) * V^T
+        evals, evecs = np.linalg.eigh(cov)
+        evals = np.maximum(evals, 1e-12)
+        inv_sqrt_diag = 1.0 / np.sqrt(evals)
+        self.W = evecs @ np.diag(inv_sqrt_diag) @ evecs.T
 
     def transform(self, x: np.ndarray) -> np.ndarray:
         """
