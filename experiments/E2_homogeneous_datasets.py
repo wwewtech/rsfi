@@ -256,7 +256,6 @@ def evaluate_dataset(
         print(f"    Splits: ref={len(ref_idx)}, val={len(val_idx)}, test={len(test_idx)}")
 
         # Method 1: RSFI-SVD (with whitening)
-        scores_rsfi_val = compute_rsfi_scores(embeddings[val_idx], np.arange(n_ref), k=20, apply_whitening=True)
         scores_rsfi_test = compute_rsfi_scores(
             np.vstack([embeddings[ref_idx], embeddings[test_idx]]),
             np.arange(n_ref),

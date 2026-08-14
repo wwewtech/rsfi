@@ -132,13 +132,13 @@ def main():
         ("BAAI/bge-base-en-v1.5", 768),
     ]
 
-    # Note: Qwen3-Embedding-8B requires special handling
-    # Add it if available
+    # Note: Qwen3-Embedding-8B requires special handling (often large download)
     try:
         print("\nChecking for high-dimensional models...")
-        test_model = SentenceTransformer("Alibaba-NLP/gte-Qwen2-1.5B-instruct")
+        # Add the exact model that opening Table 1 is based on: Qwen3-Embedding-8B (4096d)
+        test_model = SentenceTransformer("Qwen/Qwen3-Embedding-8B")
         dim = test_model.get_sentence_embedding_dimension()
-        MODELS.append(("Alibaba-NLP/gte-Qwen2-1.5B-instruct", dim))
+        MODELS.append(("Qwen/Qwen3-Embedding-8B", dim))
         print(f"  Found high-dim model: {dim}d")
     except Exception as e:
         print(f"  High-dim model not available: {e}")
