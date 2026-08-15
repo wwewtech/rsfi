@@ -46,9 +46,11 @@ $$\Sigma_W = \frac{1}{2}(\Sigma_{mal} + \Sigma_{safe}), \quad \Sigma_B = \frac{1
 
 ---
 
-## 3. Методология экспериментов
+### 3. Методология экспериментов
 
 Оценка проводилась по строгому протоколу без утечки данных между калибровкой и тестом (leakage-free holdout) с усреднением по 5 независимым случайным сидам.
+
+- **Бюджет калибровки**: Для полноразмерных датасетов (ToxicChat, Wild) используется бюджет $N_{ref}=200$ на класс (суммарно $400$ векторов в референсной выборке). Для компактного датасета XSTest ($450$ пар) используется стратифицированный сплит $33\% / 67\%$: $N_{ref}=66$ на класс ($132$ вектора в калибровке, $318$ векторов в тестовой выборке).
 
 ### 3.1. Датасеты
 1. **ToxicChat-0124 (LMSYS)**: 5082 реальных диалога (384 вредоносных/джейлбрейка, 4698 безопасных). Стилистически гомогенный сложный корпус.
@@ -156,7 +158,7 @@ $$\Sigma_W = \frac{1}{2}(\Sigma_{mal} + \Sigma_{safe}), \quad \Sigma_B = \frac{1
    - Применение канонического внутриклассового отбеливания $\Sigma_W^{-1/2}$ решает эту проблему: на Wild восстанавливается $50.6\%$ потерь ($0.8485$), на ToxicChat качество возрастает до $0.9692$, а на XSTest достигает $0.8998$.
 
 3. **Сравнение с $k$-NN (Semantic Codebooks)**:
-   - Вектор $B1$ / $B1b$ хранит **ровно 1 вектор** в памяти и требует **0.004 мс** на запрос ($O(d)$ скалярное произведение), в то время как 2-классовый $k$-NN требует сканирования $400$ векторов ($O(N_{ref} \cdot d)$). На ToxicChat и Qwen3-8B метод $B1b / B1$ превосходит $k$-NN, а на остальных моделях Wild уступает менее $0.01$ AUC.
+   - Вектор $B1$ / $B1b$ хранит **ровно 1 вектор** в памяти и требует **0.004 мс** на запрос ($O(d)$ скалярное произведение), в то время как 2-классовый $k$-NN требует сканирования $400$ векторов ($O(N_{ref} \cdot d)$). На ToxicChat и Qwen3-8B метод $B1b / B1$ превосходит $k$-NN, а на остальных моделях Wild уступает в пределах $0.0035\dots0.0113$ AUC при выигрыше в скорости и отсутствии накладных расходов памяти.
 
 ---
 
@@ -174,4 +176,4 @@ $$\Sigma_W = \frac{1}{2}(\Sigma_{mal} + \Sigma_{safe}), \quad \Sigma_B = \frac{1
 2. **Alanova, et al. (2026)**. *Cross-Lingual Jailbreak Detection via Semantic Codebooks*. arXiv:2604.25716.
 3. **Llorente-Saguer, et al. (2026)**. *Harmful Intent as a Geometrically Recoverable Feature of LLM Residual Streams*.
 4. **Röttger, P., et al. (2023)**. *XSTest: A Test Suite for Identifying Exaggerated Safety Behaviors in Large Language Models*. NAACL 2024.
-5. **Lin, C., et al. (2024)**. *ToxicChat: Unveiling Hidden Toxicity in Real-World User-AI Conversations*. Findings of EMNLP 2024.
+5. **Lin, Z., et al. (2023)**. *ToxicChat: Unveiling Hidden Toxicity in Real-World User-AI Conversations*. Findings of EMNLP 2023, pp. 4694–4702.
