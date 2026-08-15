@@ -1,0 +1,136 @@
+================================================================================
+RSFI: RAW AUDIT VERIFICATION & PROOF LOG
+================================================================================
+Date: 2026-08-15
+Repository: D:\study_in_psuti\KTN\rsfi
+Commit: d8fdfcc (and staged updates)
+
+================================================================================
+PART 1: MATHEMATICAL MECHANISM OF WHITENING REVERSE (TOTAL VS WITHIN-CLASS COVARIANCE)
+================================================================================
+
+QUESTION:
+Why does whitening by sample covariance help on ToxicChat/XSTest, but reverse/degrade on Wild?
+
+MATHEMATICAL PROOF & EMPIRICAL CONFIRMATION:
+In Linear Discriminant Analysis (LDA), the total sample covariance decomposes as:
+  \Sigma_T = \Sigma_W + \Sigma_B
+where:
+  \Sigma_W = 0.5 * (\Sigma_{mal} + \Sigma_{safe})  [Within-class pooled covariance / noise]
+  \Sigma_B = 0.25 * (\mu_{mal} - \mu_{safe})(\mu_{mal} - \mu_{safe})^T  [Between-class rank-1 scatter]
+
+1. On Wild (heterogeneous topics with large natural separation ||\mu_{mal} - \mu_{safe}||^2):
+   - \Sigma_B has a large eigenvalue exactly along the discriminant direction d = \mu_{mal} - \mu_{safe}.
+   - When RSFI whitens by total covariance \Sigma_T^{-1/2} = (\Sigma_W + \Sigma_B)^{-1/2}, the transformation
+     actively DIVIDES along the separation direction d, suppressing the discriminant signal (0.8668 -> 0.8297).
+   - EMPIRICAL TEST on Wild (mpnet-768d, 5 seeds):
+     * Raw B1 (no whitening):              AUC = 0.8668 +- 0.0060
+     * Total-Covariance Whitening (B1b):   AUC = 0.8297 +- 0.0090  (DEGRADATION: -0.0371)
+     * Within-Class Pooled Whitening \Sigma_W^{-1/2}: AUC = 0.8485 +- 0.0098  (RECOVERS +0.0188!)
+
+2. On ToxicChat & XSTest (overlapping conversational styles and trigger words):
+   - \Sigma_B is small relative to within-class variance (\Sigma_B << \Sigma_W).
+   - Therefore, \Sigma_T \approx \Sigma_W. Whitening by \Sigma_T^{-1/2} purely removes stylistic noise
+     without suppressing the discriminant axis (0.9158 -> 0.9613).
+
+
+================================================================================
+PART 2: BGE-LARGE-EN-V1.5 (1024d) PER-SEED LOGS (TOXICCHAT & WILD)
+================================================================================
+
+--- ToxicChat (BAAI/bge-large-en-v1.5, 1024d, 5 seeds) ---
+Seed 0: A1=0.8722, A1b=0.9510, B1=0.9454 (diff: +0.0732), B1b=0.9537 (diff: +0.0026), C1=0.9646, C1b=0.9524
+Seed 1: A1=0.8815, A1b=0.9559, B1=0.9513 (diff: +0.0698), B1b=0.9562 (diff: +0.0003), C1=0.9732, C1b=0.9530
+Seed 2: A1=0.8869, A1b=0.9573, B1=0.9596 (diff: +0.0727), B1b=0.9581 (diff: +0.0008), C1=0.9741, C1b=0.9563
+Seed 3: A1=0.8708, A1b=0.9507, B1=0.9506 (diff: +0.0798), B1b=0.9532 (diff: +0.0025), C1=0.9690, C1b=0.9508
+Seed 4: A1=0.8834, A1b=0.9567, B1=0.9508 (diff: +0.0674), B1b=0.9569 (diff: +0.0002), C1=0.9738, C1b=0.9543
+
+Summary ToxicChat / bge-large (mean +- std):
+A1  (Raw Cosine):       0.8790 +- 0.0071
+A1b (Whitened Cosine):  0.9543 +- 0.0032
+B1  (Disc Mean Raw):    0.9516 +- 0.0051  --> Raw Diff (B1 - A1):  +0.0726 +- 0.0047 (5/5 wins)
+B1b (Disc Mean Wh):     0.9556 +- 0.0021  --> Wh Diff (B1b - A1b): +0.0013 +- 0.0012
+C1  (LogReg Raw):       0.9710 +- 0.0041
+C1b (LogReg Whitened):  0.9534 +- 0.0021  --> B1b > C1b in 5/5 seeds (p = 0.0197)
+
+--- Wild (BAAI/bge-large-en-v1.5, 1024d, 5 seeds) ---
+Seed 0: A1=0.7572, A1b=0.8496, B1=0.8781 (diff: +0.1208), B1b=0.8453 (diff: -0.0044), C1=0.8834, C1b=0.8407
+Seed 1: A1=0.7746, A1b=0.8292, B1=0.8696 (diff: +0.0950), B1b=0.8209 (diff: -0.0084), C1=0.8792, C1b=0.8105
+Seed 2: A1=0.7671, A1b=0.8256, B1=0.8708 (diff: +0.1036), B1b=0.8207 (diff: -0.0049), C1=0.8797, C1b=0.8110
+Seed 3: A1=0.7667, A1b=0.8450, B1=0.8654 (diff: +0.0987), B1b=0.8468 (diff: +0.0019), C1=0.8767, C1b=0.8386
+Seed 4: A1=0.7712, A1b=0.8292, B1=0.8757 (diff: +0.1045), B1b=0.8279 (diff: -0.0012), C1=0.8828, C1b=0.8218
+
+Summary Wild / bge-large (mean +- std):
+A1  (Raw Cosine):       0.7674 +- 0.0065
+A1b (Whitened Cosine):  0.8357 +- 0.0108
+B1  (Disc Mean Raw):    0.8719 +- 0.0050  --> Raw Diff (B1 - A1):  +0.1045 +- 0.0099 (5/5 wins, p < 0.0001)
+B1b (Disc Mean Wh):     0.8323 +- 0.0129  --> Wh Diff (B1b - A1b): -0.0034 +- 0.0039 (4/5 reverse)
+C1  (LogReg Raw):       0.8804 +- 0.0028
+C1b (LogReg Whitened):  0.8245 +- 0.0145
+
+
+================================================================================
+PART 3: QWEN3-EMBEDDING-8B (4096d) PER-SEED LOGS ON WILD
+================================================================================
+
+--- Wild (Qwen/Qwen3-Embedding-8B, 4096d, 5 seeds) ---
+Seed 0: A1=0.7920, A1b=0.8220, B1=0.8747 (diff: +0.0827), B1b=0.8183 (diff: -0.0037), kNN_k5=0.8733, C1=0.8877
+Seed 1: A1=0.8020, A1b=0.8151, B1=0.8800 (diff: +0.0780), B1b=0.8123 (diff: -0.0028), kNN_k5=0.8648, C1=0.8918
+Seed 2: A1=0.7989, A1b=0.8298, B1=0.8733 (diff: +0.0744), B1b=0.8274 (diff: -0.0024), kNN_k5=0.8670, C1=0.8821
+Seed 3: A1=0.7856, A1b=0.8242, B1=0.8607 (diff: +0.0751), B1b=0.8270 (diff: +0.0028), kNN_k5=0.8541, C1=0.8714
+Seed 4: A1=0.8125, A1b=0.8309, B1=0.8846 (diff: +0.0721), B1b=0.8273 (diff: -0.0036), kNN_k5=0.8639, C1=0.8902
+
+Summary Wild / Qwen3-8B (mean +- std):
+A1  (Raw Cosine):       0.7982 +- 0.0097
+A1b (Whitened Cosine):  0.8244 +- 0.0063
+B1  (Disc Mean Raw):    0.8747 +- 0.0089  --> Raw Diff (B1 - A1):  +0.0765 +- 0.0040 (5/5 wins)
+B1b (Disc Mean Wh):     0.8225 +- 0.0067  --> Wh Diff (B1b - A1b): -0.0019 +- 0.0028 (4/5 reverse)
+kNN_k5 (ITMO Codebook): 0.8646 +- 0.0070  --> Raw B1 (0.8747) beats kNN_k5 (0.8646) by +0.0101
+C1  (LogReg Raw):       0.8846 +- 0.0080
+
+
+================================================================================
+PART 4: HEAD-TO-HEAD NON-PARAMETRIC COMPARISON: B1/B1b VS KNN_K5 (ITMO CODEBOOK)
+================================================================================
+
+Dataset    Model        kNN_k5 (Cosine)     RSFI B1 (Raw Disc)    RSFI B1b (Wh Disc)    Winner
+ToxicChat  mpnet-base   0.9582 +- 0.0044    0.9509 +- 0.0061      0.9617 +- 0.0038      B1b (+0.0035 over kNN)
+ToxicChat  bge-base     0.9481 +- 0.0073    0.9473 +- 0.0064      0.9524 +- 0.0063      B1b (+0.0043 over kNN)
+ToxicChat  bge-large    0.9513 +- 0.0075    0.9516 +- 0.0051      0.9556 +- 0.0021      B1b (+0.0043 over kNN)
+
+Wild       mpnet-base   0.8781 +- 0.0033    0.8668 +- 0.0060      0.8297 +- 0.0090      kNN (+0.0113 over B1)
+Wild       bge-base     0.8653 +- 0.0046    0.8618 +- 0.0050      0.8313 +- 0.0070      kNN (+0.0035 over B1)
+Wild       bge-large    0.8799 +- 0.0055    0.8719 +- 0.0050      0.8323 +- 0.0129      kNN (+0.0080 over B1)
+Wild       Qwen3-8B     0.8646 +- 0.0070    0.8747 +- 0.0089      0.8225 +- 0.0067      B1  (+0.0101 over kNN)
+
+COMPUTATIONAL COMPLEXITY / LATENCY COMPARISON:
+- kNN_k5 (memory scan over N_ref=400 vectors):  O(N_ref * d) search time, requires storing 400 reference vectors.
+- B1 / B1b (single vector projection):           O(d) dot product, requires storing ONLY 1 vector (0.004 ms).
+
+
+================================================================================
+PART 5: DELONG TEST VERIFIED P-VALUES (`data/results/E2d_delong_tests.csv`)
+================================================================================
+
+Dataset    Model              Pair        Mean_Diff  Wins/Total  Mean_p_value
+ToxicChat  all-mpnet-base-v2  B1_vs_A1      +0.0351         5/5       <0.0001
+ToxicChat  all-mpnet-base-v2  B1b_vs_C1b    +0.0036         5/5        0.0055
+ToxicChat  bge-base-en-v1.5   B1_vs_A1      +0.0675         5/5       <0.0001
+ToxicChat  bge-base-en-v1.5   B1b_vs_C1b    +0.0035         5/5        0.0136
+ToxicChat  bge-large-en-v1.5  B1_vs_A1      +0.0726         5/5       <0.0001
+ToxicChat  bge-large-en-v1.5  B1b_vs_C1b    +0.0022         5/5        0.0197
+
+Wild       all-mpnet-base-v2  B1_vs_A1      +0.0822         5/5       <0.0001
+Wild       all-mpnet-base-v2  B1b_vs_C1b    +0.0089         5/5       <0.0001
+Wild       bge-base-en-v1.5   B1_vs_A1      +0.0910         5/5       <0.0001
+Wild       bge-base-en-v1.5   B1b_vs_C1b    +0.0085         5/5       <0.0001
+Wild       bge-large-en-v1.5  B1_vs_A1      +0.1045         5/5       <0.0001
+Wild       bge-large-en-v1.5  B1b_vs_C1b    +0.0078         5/5       <0.0001
+
+XSTest     all-mpnet-base-v2  B1b_vs_A1b    -0.0003         2/5        0.8921  (NO EFFECT of Safe-Aware)
+XSTest     all-mpnet-base-v2  A1b_vs_A1     +0.1355         5/5       <0.0001  (ALL GAIN is Whitening)
+XSTest     bge-base-en-v1.5   B1b_vs_C1b    +0.0032         5/5        0.0147
+
+================================================================================
+END OF RAW AUDIT VERIFICATION LOG
+================================================================================
