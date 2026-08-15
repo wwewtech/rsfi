@@ -172,8 +172,8 @@ $$\Sigma_W = \frac{1}{2}(\Sigma_{mal} + \Sigma_{safe}), \quad \Sigma_B = \frac{1
 
 ## 7. Библиография (Prior Art)
 
-1. **Ledoit, O., & Wolf, M. (2004)**. *A well-conditioned estimator for large-dimensional covariance matrices*. Journal of Multivariate Analysis, 88(2), 365-411.
-2. **Alanova, et al. (2026)**. *Cross-Lingual Jailbreak Detection via Semantic Codebooks*. arXiv:2604.25716.
-3. **Llorente-Saguer, et al. (2026)**. *Harmful Intent as a Geometrically Recoverable Feature of LLM Residual Streams*.
-4. **Röttger, P., et al. (2023)**. *XSTest: A Test Suite for Identifying Exaggerated Safety Behaviors in Large Language Models*. NAACL 2024.
-5. **Lin, Z., et al. (2023)**. *ToxicChat: Unveiling Hidden Toxicity in Real-World User-AI Conversations*. Findings of EMNLP 2023, pp. 4694–4702.
+1. **Ledoit, O., & Wolf, M. (2004)**. *A well-conditioned estimator for large-dimensional covariance matrices*. Journal of Multivariate Analysis, 88(2), pp. 365–411.
+2. **Alanova, S., Minko, B., Sadiekh, S., & Kokuykin, E. (2026)**. *Cross-Lingual Jailbreak Detection via Semantic Codebooks*. arXiv preprint arXiv:2604.25716.
+3. **Llorente-Saguer, I. (2026)**. *Harmful Intent as a Geometrically Recoverable Feature of LLM Residual Streams*. arXiv preprint arXiv:2604.28319.
+4. **Röttger, P., Kirk, H. R., Vidgen, B., Attanasio, G., Bianchi, F., & Hovy, D. (2024)**. *XSTest: A Test Suite for Identifying Exaggerated Safety Behaviors in Large Language Models*. In Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL 2024), pp. 1824–1842.
+5. **Lin, Z., Wang, Z., Tong, Y., Wang, Y., Guo, Y., Wang, Y., & Shang, J. (2023)**. *ToxicChat: Unveiling Hidden Challenges of Toxicity Detection in Real-World User-AI Conversation*. Findings of the Association for Computational Linguistics: EMNLP 2023, pp. 4694–4702.
