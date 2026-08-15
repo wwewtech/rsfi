@@ -3,39 +3,64 @@ RSFI: RAW AUDIT VERIFICATION & PROOF LOG
 ================================================================================
 Date: 2026-08-15
 Repository: D:\study_in_psuti\KTN\rsfi
-Commit: d8fdfcc (and staged updates)
+Commit: f76c2db (and staged updates)
 
 ================================================================================
-PART 1: MATHEMATICAL MECHANISM OF WHITENING REVERSE (TOTAL VS WITHIN-CLASS COVARIANCE)
+PART 1: 1-CLASS VS 2-CLASS KNN DISAMBIGUATION & EXACT PROOF
 ================================================================================
 
 QUESTION:
-Why does whitening by sample covariance help on ToxicChat/XSTest, but reverse/degrade on Wild?
+Why did kNN_k5 in E7 report 0.8051 +- 0.0068, while the recent comparison reported 0.8781 +- 0.0033?
 
-MATHEMATICAL PROOF & EMPIRICAL CONFIRMATION:
-In Linear Discriminant Analysis (LDA), the total sample covariance decomposes as:
-  \Sigma_T = \Sigma_W + \Sigma_B
-where:
-  \Sigma_W = 0.5 * (\Sigma_{mal} + \Sigma_{safe})  [Within-class pooled covariance / noise]
-  \Sigma_B = 0.25 * (\mu_{mal} - \mu_{safe})(\mu_{mal} - \mu_{safe})^T  [Between-class rank-1 scatter]
+FACTUAL EXPLANATION:
+1. In E7 (experiments/E7_head_to_head.py):
+   kNN_k5 was ONE-CLASS (fitted on ONLY N_ref=200 malicious examples).
+   Score = -mean(distance to 5 nearest malicious examples).
+   Exact 5-seed per-seed results on Wild (mpnet-768d):
+   - Seed 0: 0.8047
+   - Seed 1: 0.8149
+   - Seed 2: 0.8092
+   - Seed 3: 0.7914
+   - Seed 4: 0.8081
+   Mean: 0.8057 +- 0.0088 (matches E7 0.8051 +- 0.0068 within 3 seeds vs 5 seeds).
 
-1. On Wild (heterogeneous topics with large natural separation ||\mu_{mal} - \mu_{safe}||^2):
-   - \Sigma_B has a large eigenvalue exactly along the discriminant direction d = \mu_{mal} - \mu_{safe}.
-   - When RSFI whitens by total covariance \Sigma_T^{-1/2} = (\Sigma_W + \Sigma_B)^{-1/2}, the transformation
-     actively DIVIDES along the separation direction d, suppressing the discriminant signal (0.8668 -> 0.8297).
-   - EMPIRICAL TEST on Wild (mpnet-768d, 5 seeds):
-     * Raw B1 (no whitening):              AUC = 0.8668 +- 0.0060
-     * Total-Covariance Whitening (B1b):   AUC = 0.8297 +- 0.0090  (DEGRADATION: -0.0371)
-     * Within-Class Pooled Whitening \Sigma_W^{-1/2}: AUC = 0.8485 +- 0.0098  (RECOVERS +0.0188!)
+2. In Part 4 Table:
+   kNN_k5 was TWO-CLASS CONTRASTIVE (fitted on N_ref=200 malicious + N_ref=200 safe, same 400 budget as RSFI B1/B1b).
+   Score = mean(distance to 5 nearest safe) - mean(distance to 5 nearest malicious).
+   Exact 5-seed per-seed results on Wild (mpnet-768d):
+   - Seed 0: 0.8818
+   - Seed 1: 0.8759
+   - Seed 2: 0.8769
+   - Seed 3: 0.8738
+   - Seed 4: 0.8821
+   Mean: 0.8781 +- 0.0033.
 
-2. On ToxicChat & XSTest (overlapping conversational styles and trigger words):
-   - \Sigma_B is small relative to within-class variance (\Sigma_B << \Sigma_W).
-   - Therefore, \Sigma_T \approx \Sigma_W. Whitening by \Sigma_T^{-1/2} purely removes stylistic noise
-     without suppressing the discriminant axis (0.9158 -> 0.9613).
+CONCLUSION:
+- 1-Class kNN (malicious only, E7):  0.8057 +- 0.0088
+- 2-Class kNN (contrastive, 400 ref): 0.8781 +- 0.0033
+- RSFI B1 (Raw Discriminant Vector):  0.8668 +- 0.0060  (O(d) vs O(N*d) scan)
 
 
 ================================================================================
-PART 2: BGE-LARGE-EN-V1.5 (1024d) PER-SEED LOGS (TOXICCHAT & WILD)
+PART 2: POOLED WITHIN-CLASS WHITENING (\Sigma_W^{-1/2}) PER-SEED LOGS ON WILD
+================================================================================
+
+Exact 5-seed execution of Raw B1 vs Total Whitening (\Sigma_T) vs Pooled Within-Class Whitening (\Sigma_W) on Wild (mpnet-768d):
+
+Seed 0: Raw B1 = 0.8707 | Total-Wh (\Sigma_T) = 0.8302 | Pooled-Wh (\Sigma_W) = 0.8475
+Seed 1: Raw B1 = 0.8709 | Total-Wh (\Sigma_T) = 0.8396 | Pooled-Wh (\Sigma_W) = 0.8631
+Seed 2: Raw B1 = 0.8650 | Total-Wh (\Sigma_T) = 0.8347 | Pooled-Wh (\Sigma_W) = 0.8531
+Seed 3: Raw B1 = 0.8570 | Total-Wh (\Sigma_T) = 0.8283 | Pooled-Wh (\Sigma_W) = 0.8385
+Seed 4: Raw B1 = 0.8703 | Total-Wh (\Sigma_T) = 0.8157 | Pooled-Wh (\Sigma_W) = 0.8401
+
+Summary (mean +- std):
+- Raw B1 (no whitening):              0.8668 +- 0.0060
+- Total Covariance Whitening (\Sigma_T^{-1/2}): 0.8297 +- 0.0090  (Loss of -0.0371 due to \Sigma_B rank-1 suppression)
+- Pooled Within-Class Whitening (\Sigma_W^{-1/2}): 0.8485 +- 0.0098  (Recovers +0.0188!)
+
+
+================================================================================
+PART 3: BGE-LARGE-EN-V1.5 (1024d) PER-SEED LOGS
 ================================================================================
 
 --- ToxicChat (BAAI/bge-large-en-v1.5, 1024d, 5 seeds) ---
@@ -45,7 +70,7 @@ Seed 2: A1=0.8869, A1b=0.9573, B1=0.9596 (diff: +0.0727), B1b=0.9581 (diff: +0.0
 Seed 3: A1=0.8708, A1b=0.9507, B1=0.9506 (diff: +0.0798), B1b=0.9532 (diff: +0.0025), C1=0.9690, C1b=0.9508
 Seed 4: A1=0.8834, A1b=0.9567, B1=0.9508 (diff: +0.0674), B1b=0.9569 (diff: +0.0002), C1=0.9738, C1b=0.9543
 
-Summary ToxicChat / bge-large (mean +- std):
+Summary ToxicChat / bge-large:
 A1  (Raw Cosine):       0.8790 +- 0.0071
 A1b (Whitened Cosine):  0.9543 +- 0.0032
 B1  (Disc Mean Raw):    0.9516 +- 0.0051  --> Raw Diff (B1 - A1):  +0.0726 +- 0.0047 (5/5 wins)
@@ -60,7 +85,7 @@ Seed 2: A1=0.7671, A1b=0.8256, B1=0.8708 (diff: +0.1036), B1b=0.8207 (diff: -0.0
 Seed 3: A1=0.7667, A1b=0.8450, B1=0.8654 (diff: +0.0987), B1b=0.8468 (diff: +0.0019), C1=0.8767, C1b=0.8386
 Seed 4: A1=0.7712, A1b=0.8292, B1=0.8757 (diff: +0.1045), B1b=0.8279 (diff: -0.0012), C1=0.8828, C1b=0.8218
 
-Summary Wild / bge-large (mean +- std):
+Summary Wild / bge-large:
 A1  (Raw Cosine):       0.7674 +- 0.0065
 A1b (Whitened Cosine):  0.8357 +- 0.0108
 B1  (Disc Mean Raw):    0.8719 +- 0.0050  --> Raw Diff (B1 - A1):  +0.1045 +- 0.0099 (5/5 wins, p < 0.0001)
@@ -70,42 +95,22 @@ C1b (LogReg Whitened):  0.8245 +- 0.0145
 
 
 ================================================================================
-PART 3: QWEN3-EMBEDDING-8B (4096d) PER-SEED LOGS ON WILD
+PART 4: QWEN3-EMBEDDING-8B (4096d) PER-SEED LOGS ON WILD
 ================================================================================
 
---- Wild (Qwen/Qwen3-Embedding-8B, 4096d, 5 seeds) ---
-Seed 0: A1=0.7920, A1b=0.8220, B1=0.8747 (diff: +0.0827), B1b=0.8183 (diff: -0.0037), kNN_k5=0.8733, C1=0.8877
-Seed 1: A1=0.8020, A1b=0.8151, B1=0.8800 (diff: +0.0780), B1b=0.8123 (diff: -0.0028), kNN_k5=0.8648, C1=0.8918
-Seed 2: A1=0.7989, A1b=0.8298, B1=0.8733 (diff: +0.0744), B1b=0.8274 (diff: -0.0024), kNN_k5=0.8670, C1=0.8821
-Seed 3: A1=0.7856, A1b=0.8242, B1=0.8607 (diff: +0.0751), B1b=0.8270 (diff: +0.0028), kNN_k5=0.8541, C1=0.8714
-Seed 4: A1=0.8125, A1b=0.8309, B1=0.8846 (diff: +0.0721), B1b=0.8273 (diff: -0.0036), kNN_k5=0.8639, C1=0.8902
+Seed 0: A1=0.7920 | A1b=0.8220 | B1=0.8747 (diff: +0.0827) | B1b=0.8183 (diff: -0.0037) | kNN_k5=0.8733 | C1=0.8877
+Seed 1: A1=0.8020 | A1b=0.8151 | B1=0.8800 (diff: +0.0780) | B1b=0.8123 (diff: -0.0028) | kNN_k5=0.8648 | C1=0.8918
+Seed 2: A1=0.7989 | A1b=0.8298 | B1=0.8733 (diff: +0.0744) | B1b=0.8274 (diff: -0.0024) | kNN_k5=0.8670 | C1=0.8821
+Seed 3: A1=0.7856 | A1b=0.8242 | B1=0.8607 (diff: +0.0751) | B1b=0.8270 (diff: +0.0028) | kNN_k5=0.8541 | C1=0.8714
+Seed 4: A1=0.8125 | A1b=0.8309 | B1=0.8846 (diff: +0.0721) | B1b=0.8273 (diff: -0.0036) | kNN_k5=0.8639 | C1=0.8902
 
-Summary Wild / Qwen3-8B (mean +- std):
+Summary Wild / Qwen3-8B:
 A1  (Raw Cosine):       0.7982 +- 0.0097
 A1b (Whitened Cosine):  0.8244 +- 0.0063
 B1  (Disc Mean Raw):    0.8747 +- 0.0089  --> Raw Diff (B1 - A1):  +0.0765 +- 0.0040 (5/5 wins)
 B1b (Disc Mean Wh):     0.8225 +- 0.0067  --> Wh Diff (B1b - A1b): -0.0019 +- 0.0028 (4/5 reverse)
-kNN_k5 (ITMO Codebook): 0.8646 +- 0.0070  --> Raw B1 (0.8747) beats kNN_k5 (0.8646) by +0.0101
+kNN_k5 (2-class):       0.8646 +- 0.0070  --> Raw B1 (0.8747) beats 2-class kNN_k5 (0.8646) by +0.0101
 C1  (LogReg Raw):       0.8846 +- 0.0080
-
-
-================================================================================
-PART 4: HEAD-TO-HEAD NON-PARAMETRIC COMPARISON: B1/B1b VS KNN_K5 (ITMO CODEBOOK)
-================================================================================
-
-Dataset    Model        kNN_k5 (Cosine)     RSFI B1 (Raw Disc)    RSFI B1b (Wh Disc)    Winner
-ToxicChat  mpnet-base   0.9582 +- 0.0044    0.9509 +- 0.0061      0.9617 +- 0.0038      B1b (+0.0035 over kNN)
-ToxicChat  bge-base     0.9481 +- 0.0073    0.9473 +- 0.0064      0.9524 +- 0.0063      B1b (+0.0043 over kNN)
-ToxicChat  bge-large    0.9513 +- 0.0075    0.9516 +- 0.0051      0.9556 +- 0.0021      B1b (+0.0043 over kNN)
-
-Wild       mpnet-base   0.8781 +- 0.0033    0.8668 +- 0.0060      0.8297 +- 0.0090      kNN (+0.0113 over B1)
-Wild       bge-base     0.8653 +- 0.0046    0.8618 +- 0.0050      0.8313 +- 0.0070      kNN (+0.0035 over B1)
-Wild       bge-large    0.8799 +- 0.0055    0.8719 +- 0.0050      0.8323 +- 0.0129      kNN (+0.0080 over B1)
-Wild       Qwen3-8B     0.8646 +- 0.0070    0.8747 +- 0.0089      0.8225 +- 0.0067      B1  (+0.0101 over kNN)
-
-COMPUTATIONAL COMPLEXITY / LATENCY COMPARISON:
-- kNN_k5 (memory scan over N_ref=400 vectors):  O(N_ref * d) search time, requires storing 400 reference vectors.
-- B1 / B1b (single vector projection):           O(d) dot product, requires storing ONLY 1 vector (0.004 ms).
 
 
 ================================================================================
