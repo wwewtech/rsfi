@@ -1,6 +1,6 @@
 <div align="center">
   
-# 🛡️ RSFI: Riemannian System Fidelity Index 🌐
+# RSFI - Riemannian System Fidelity Index
 
 <p align="center">
   <a href="README_EN.md"><strong>🇺🇸 English Version</strong></a> &nbsp; | &nbsp; <a href="README_RU.md"><strong>🇷🇺 Русская Версия</strong></a>
