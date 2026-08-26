@@ -306,6 +306,7 @@ def run_benchmark():
                     ("B1_discriminant_mean_raw", "C1_logreg_raw", "B1_vs_C1"),
                     ("A3_rsfi_svd_whitened_k20", "A1_naive_cosine_raw", "A3_vs_A1"),
                     ("B1b_discriminant_mean_whitened", "B1_discriminant_mean_raw", "B1b_vs_B1"),
+                    ("B1b_discriminant_mean_whitened", "A1b_cosine_whitened", "B1b_vs_A1b"),
                 ]
                 for m1, m2, pair_name in pairs:
                     p_val = delong_test(y_test, scores[m1], scores[m2])
