@@ -2,7 +2,7 @@
   
 # RSFI - Riemannian System Fidelity Index
 
-**A Method for Dynamic Control of Semantic Drift and Sycophancy in Large Language Models Based on Non-Euclidean Geometry**
+**A Geometric Analysis of One-Class Embedding Guardrails for LLM Jailbreak Detection: Safe-Aware Discriminant Correction and Pooled Within-Class Whitening**
 
 <a href="README.md">⬅️ Back to Language Selection</a>
 
@@ -12,7 +12,7 @@
 
 ## 📌 Abstract
 
-The integration of Large Language Models (LLMs) into critical domains (finance, law, healthcare) is hindered by fundamental vulnerabilities. Neural networks are prone to **sycophancy** — easily aligning with malicious or erroneous user context. Defending them against direct attacks like *Jailbreaking* and *Prompt Injection* often requires complex workarounds.
+The integration of Large Language Models (LLMs) into critical domains (finance, law, healthcare) is hindered by fundamental vulnerabilities. Direct attacks — *Jailbreaking* and *Prompt Injection* — require filtering at the API gateway level.
 
 Current state-of-the-art methods either require full access to the model's weights (**White-Box** approaches) or introduce critical latency bottlenecks. Classifiers like *Meta Llama Guard* add 100–200 ms of latency per request. Using fast heuristic algorithms based on cosine similarity leads to the issue of **spatial anisotropy** — vectors cluster into a "semantic cone", causing the system to block perfectly safe requests (high False Positive Rate).
 
@@ -62,17 +62,14 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 
 ## 📊 State-of-the-Art Comparison
 
-| Parameter / Method | Representation Eng. | Meta Llama Guard 4 | SAFENUDGE / ZEDD | **RSFI (Our Method)** |
-| :--- | :---: | :---: | :---: | :---: |
-| **Model Access** | White-Box (Required) | Black-Box | Black-Box | **Black-Box (API)** |
-| **Latency Overhead** | ~0 ms | > 100–200 ms | < 15 ms | **~0.021 ms (< 10 ms)** |
-| **Fine-Tuning Required** | No | Yes | No | **Few-Shot** |
-| **Anisotropy Mitigation** | N/A | N/A | Partial | **Full ZCA Whitening** |
-| **Separability (ROC-AUC)**| 0.92 | 0.96 | 0.89 | **0.856** (4096d) |
+| Parameter / Method | Fine-tuned classifiers (DeBERTa / Llama Guard) | **Discriminant filter $B1$/$B1b$ (this repo)** |
+| :--- | :---: | :---: |
+| **Model Access** | Black-Box | **Black-Box (embedding API)** |
+| **Scoring Latency** | single-digit to tens of ms | **~0.003 ms (single dot product, measured in E7)** |
+| **Calibration Memory** | full classifier weights | **1 direction vector + whitening matrix** |
+| **ROC-AUC (Wild, mpnet, 5 seeds)** | not measured by us directly | **0.867 ± 0.006 ($B1$), LogReg ceiling 0.877** (`data/results/E2d_safe_aware_multidataset.csv`) |
 
-**Note on Performance**: Previous claims of 1.0000 AUC were based on methodologically flawed experiments with test set leakage. 
-Honest evaluation (experiments E1-E10) shows RSFI achieves **0.75-0.85 ROC-AUC** on real-world data, competitive with 
-fast geometric methods but below fine-tuned transformers (~0.90-0.95). See `docs/RESEARCH_REPORT.md` for details.
+**Note on honesty**: earlier claims of AUC = 1.0000 were based on test-set leakage and have been retracted. All current numbers are reproducible from the CSVs in `data/results/`; full methodology is in `docs/RESEARCH_REPORT.md`, and the VAK-level audit summary is in `docs/VAK_VERDICT.md`.
 
 ---
 
@@ -144,6 +141,9 @@ python experiments/E3_operating_point.py
 
 # External baselines comparison (E7)
 python experiments/E7_external_baselines.py
+
+# Sigma_T vs Sigma_W whitening and kNN baselines (E8, Tables 4-5 of the report)
+python experiments/E8_sigma_w_whitening.py
 ```
 
 
