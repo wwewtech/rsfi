@@ -325,3 +325,101 @@ def test_e9_protocol_integrity(e9):
     expected = {"ToxicChat": 4682, "Wild": 1600, "XSTest": 301}
     for ds, n in expected.items():
         assert (e9[e9.dataset == ds].n_test == n).all()
+
+
+# -------------------------------------------------------------------- Table 8
+# Source: E6b_obfuscation_boundary.csv
+
+E6B = None
+
+@pytest.fixture(scope="module")
+def e6b():
+    global E6B
+    if E6B is None:
+        E6B = load("E6b_obfuscation_boundary.csv")
+    return E6B
+
+@pytest.mark.parametrize(
+    "dataset,method,clean,b64,leet,rot,zw,homo",
+    [
+        # --- Table 8 (Wild) ---
+        ("Wild", "A1_naive_cosine_raw", 0.7846, 0.2382, 0.4874, 0.5855, 0.7845, 0.5534),
+        ("Wild", "A2_rsfi_svd_raw_k20", 0.7875, 0.1491, 0.3956, 0.4823, 0.7875, 0.4223),
+        ("Wild", "B1_discriminant_mean_raw", 0.8668, 0.7048, 0.7792, 0.7601, 0.8668, 0.7698),
+        ("Wild", "B1b_SigmaT_wh", 0.8297, 0.4511, 0.8121, 0.7906, 0.8297, 0.7189),
+        ("Wild", "B1w_SigmaW_wh", 0.8475, 0.5129, 0.8331, 0.8237, 0.8475, 0.7385),
+        ("Wild", "C1_logreg_raw", 0.8766, 0.7175, 0.85, 0.8164, 0.8766, 0.7881),
+        # --- Table 8 (ToxicChat) ---
+        ("ToxicChat", "A1_naive_cosine_raw", 0.9158, 0.7471, 0.7681, 0.8269, 0.9158, 0.8411),
+        ("ToxicChat", "A2_rsfi_svd_raw_k20", 0.9382, 0.5865, 0.6222, 0.7275, 0.9382, 0.7582),
+        ("ToxicChat", "B1_discriminant_mean_raw", 0.9509, 0.6621, 0.6503, 0.6964, 0.9509, 0.8351),
+        ("ToxicChat", "B1b_SigmaT_wh", 0.9617, 0.6927, 0.731, 0.6353, 0.9617, 0.8044),
+        ("ToxicChat", "B1w_SigmaW_wh", 0.968, 0.7242, 0.7005, 0.6828, 0.968, 0.8447),
+        ("ToxicChat", "C1_logreg_raw", 0.9702, 0.711, 0.6972, 0.7141, 0.9702, 0.8486),
+        # --- Table 8 (XSTest) ---
+        ("XSTest", "A1_naive_cosine_raw", 0.7618, 0.1773, 0.0884, 0.0715, 0.7618, 0.1005),
+        ("XSTest", "A2_rsfi_svd_raw_k20", 0.8463, 0.0487, 0.0348, 0.0096, 0.8463, 0.0808),
+        ("XSTest", "B1_discriminant_mean_raw", 0.7851, 0.431, 0.4075, 0.3125, 0.7851, 0.3775),
+        ("XSTest", "B1b_SigmaT_wh", 0.897, 0.2976, 0.361, 0.2845, 0.897, 0.453),
+        ("XSTest", "B1w_SigmaW_wh", 0.8999, 0.311, 0.3767, 0.2901, 0.8999, 0.4485),
+        ("XSTest", "C1_logreg_raw", 0.8542, 0.3125, 0.3069, 0.2069, 0.8542, 0.3269),
+    ],
+)
+def test_table_8(e6b, dataset, method, clean, b64, leet, rot, zw, homo):
+    """Every cell of report Table 8 (mpnet primary embedder)."""
+    m = e6b[(e6b.dataset == dataset)
+            & (e6b.model == "all-mpnet-base-v2")
+            & (e6b.method == method)]
+    assert len(m) == 30
+    for obf, exp in [("clean", clean), ("base64", b64),
+                     ("leetspeak", leet), ("rot13", rot),
+                     ("zero_width", zw), ("homoglyph", homo)]:
+        got = m[m.obfuscation == obf].roc_auc.mean()
+        assert abs(got - exp) <= TOL, \
+            f"{dataset}/{method}/{obf}: {got:.4f} != {exp}"
+
+
+def test_table_8_protocol_integrity(e6b):
+    """Same budgets as E2d/E9: unique n_test_attack / n_test_safe per dataset."""
+    att = {"ToxicChat": 184, "Wild": 800, "XSTest": 134}
+    safe = {"ToxicChat": 4498, "Wild": 800, "XSTest": 167}
+    for ds, n_a in att.items():
+        sub = e6b[e6b.dataset == ds]
+        assert set(sub.n_test_attack.unique()) == {n_a}
+        assert set(sub.n_test_safe.unique()) == {safe[ds]}
+
+
+def test_e6b_clean_reproduces_committed_means(e6b):
+    """Clean rows must match committed E8/E2d means within TOL"""
+    specs = {
+        "B1_discriminant_mean_raw": ("E8_sigma_w.csv", "B1_raw"),
+        "B1b_SigmaT_wh": ("E8_sigma_w.csv", "B1b_SigmaT_wh"),
+        "B1w_SigmaW_wh": ("E8_sigma_w.csv", "B1w_SigmaW_wh"),
+        "A1_naive_cosine_raw": ("E2d_safe_aware_multidataset.csv",
+                                "A1_naive_cosine_raw"),
+        "A2_rsfi_svd_raw_k20": ("E2d_safe_aware_multidataset.csv",
+                                "A2_rsfi_svd_raw_k20"),
+        "C1_logreg_raw": ("E2d_safe_aware_multidataset.csv", "C1_logreg_raw"),
+    }
+    clean = e6b[e6b.obfuscation == "clean"]
+    for method, (fname, comm_name) in specs.items():
+        ref = load(fname)
+        ref = ref[ref.method == comm_name]
+        mine = clean[clean.method == method]
+        for (ds, mdl), g in ref.groupby(["dataset", "model"]):
+            if not ((mine.dataset == ds) & (mine.model == mdl)).any():
+                continue
+            exp_m = g.roc_auc.mean()
+            got_m = mine[(mine.dataset == ds)
+                         & (mine.model == mdl)].roc_auc.mean()
+            assert abs(got_m - exp_m) <= TOL, \
+                f"{method}/{ds}/{mdl}: {got_m:.4f} != {exp_m:.4f} ({fname})"
+
+
+def test_e6b_zero_width_is_tokenizer_noop(e6b):
+    """ZWSP obfuscation is indistinguishable from clean for these tokenizers:
+    per-seed max |diff| <= 2e-4 across all datasets/models/methods."""
+    wide = e6b.pivot_table(index=["dataset", "model", "method", "seed"],
+                           columns="obfuscation", values="roc_auc")
+    diff = (wide["zero_width"] - wide["clean"]).abs().max()
+    assert diff <= 2e-4, f"zero_width deviates from clean by {diff}"
