@@ -10,6 +10,12 @@
 
 ---
 
+## On the Name
+
+"Riemannian" is the project's historical name. The full Riemannian machinery (Log/Exp maps) is implemented in `src/rsfi/geometry.py` and covered by unit tests, but the benchmarked pipeline uses Euclidean spherical geometry (L2 + Ledoit-Wolf ZCA + SVD/discriminant directions). The separation between library and experiment is deliberate.
+
+---
+
 ## 📌 Abstract
 
 The integration of Large Language Models (LLMs) into critical domains (finance, law, healthcare) is hindered by fundamental vulnerabilities. Direct attacks — *Jailbreaking* and *Prompt Injection* — require filtering at the API gateway level.
