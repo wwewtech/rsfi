@@ -12,9 +12,9 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Few-Shot Protection](https://img.shields.io/badge/Security-Few--Shot%20Black--Box-brightgreen.svg)]()
-[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-%3C%2010%20ms%20(Real--Time)-orange.svg)]()
-[![Open Science](https://img.shields.io/badge/Open%20Science-Validated-blueviolet.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-185%20Passed-brightgreen.svg)]()
+[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-~0.003%20ms%20(GPU)-orange.svg)]()
+[![VAK Readiness](https://img.shields.io/badge/VAK%20Readiness-K2%20Verified-blueviolet.svg)]()
 
 <br>
 
