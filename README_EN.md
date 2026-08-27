@@ -102,11 +102,11 @@ The codebase follows modern Python package standards:
  ┃ ┣ 📂 results          # Benchmark outputs (*.csv)
  ┃ ┣ 📂 reports          # Generated reports
  ┃ ┗ 📂 figures          # ROC curves and latency plots (*.png)
- ┗ 📂 docs               # Documentation
-   ┣ 📜 RESEARCH_REPORT.md  # Honest evaluation results (E1-E10)
-   ┣ 📜 math.md             # Full mathematical derivations
-   ┣ 📜 PROJECT_EVOLUTION.md # Project history and methodology corrections
-   ┗ 📂 archive              # Historical drafts and audit logs
+  ┗ 📂 docs               # Documentation
+    ┣ 📜 RESEARCH_REPORT.md  # Primary scientific report (E1-E10, E6b, E8, E9, E9b), VAK K2 verdict
+    ┣ 📜 math.md             # Full mathematical derivations and semantic geometry
+    ┣ 📜 ARCHITECTURE.md     # System architecture (Rust Gateway), L1 fast-path, EU AI Act
+    ┗ 📂 archive              # Historical drafts and audit archive
 ```
 
 ---
