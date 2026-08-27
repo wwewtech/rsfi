@@ -75,7 +75,7 @@ $$ \text{RSFI}(r) = \pi_{sys}(r) - \lambda \cdot \pi_{thr}(r) $$
 | **Calibration Memory** | full classifier weights | **1 direction vector + whitening matrix** |
 | **ROC-AUC (Wild, 5 seeds)** | **0.841 ± 0.004** (deberta-v2) / **0.724 ± 0.009** (toxic-bert) | **0.867 ± 0.006 ($B1$), LogReg ceiling 0.877** (`data/results/E2d_safe_aware_multidataset.csv`, `E9_external_baselines.csv`) |
 
-**Note on honesty**: earlier claims of AUC = 1.0000 were based on test-set leakage and have been retracted. All current numbers are reproducible from the CSVs in `data/results/`; full methodology is in `docs/RESEARCH_REPORT.md`, and the VAK-level audit summary is in `docs/VAK_VERDICT.md`.
+**Note on honesty**: earlier claims of AUC = 1.0000 were based on test-set leakage and have been retracted. All current numbers are reproducible from the CSVs in `data/results/`; full methodology, VAK-level audit verdict, and audit chronicle are in [`docs/RESEARCH_REPORT.md`](docs/RESEARCH_REPORT.md).
 
 ---
 
