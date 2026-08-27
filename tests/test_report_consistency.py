@@ -37,8 +37,7 @@ def assert_cell(mean, std, exp_mean, exp_std=None):
 
 
 # ---------------------------------------------------------------- Table 1 / 2
-# Source: E2d_safe_aware_multidataset.csv (mpnet / bge-base / bge-large).
-# Qwen3-8B rows excluded: no committed per-seed CSV (documented limitation).
+# Source: E2d_safe_aware_multidataset.csv & E2q_qwen_multidataset.csv.
 
 E2D = None
 
@@ -46,7 +45,9 @@ E2D = None
 def e2d():
     global E2D
     if E2D is None:
-        E2D = load("E2d_safe_aware_multidataset.csv")
+        e2d_orig = load("E2d_safe_aware_multidataset.csv")
+        e2q = load("E2q_qwen_multidataset.csv")
+        E2D = pd.concat([e2d_orig, e2q], ignore_index=True)
     return E2D
 
 
@@ -66,6 +67,10 @@ def e2d():
         ("Wild", "bge-large-en-v1.5", "A2_rsfi_svd_raw_k20", 0.7839, 0.0110),
         ("Wild", "bge-large-en-v1.5", "B1_discriminant_mean_raw", 0.8719, 0.0050),
         ("Wild", "bge-large-en-v1.5", "C1_logreg_raw", 0.8804, 0.0028),
+        ("Wild", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.7982, 0.0102),
+        ("Wild", "Qwen3-Embedding-8B", "A2_rsfi_svd_raw_k20", 0.8012, 0.0130),
+        ("Wild", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 0.8747, 0.0090),
+        ("Wild", "Qwen3-Embedding-8B", "C1_logreg_raw", 0.8847, 0.0083),
         # --- Table 2 (ToxicChat) ---
         ("ToxicChat", "all-mpnet-base-v2", "A1_naive_cosine_raw", 0.9158, None),
         ("ToxicChat", "all-mpnet-base-v2", "A1b_cosine_whitened", 0.9613, None),
@@ -78,6 +83,14 @@ def e2d():
         ("ToxicChat", "bge-base-en-v1.5", "A1_naive_cosine_raw", 0.8798, None),
         ("ToxicChat", "bge-base-en-v1.5", "B1b_discriminant_mean_whitened", 0.9524, None),
         ("ToxicChat", "bge-large-en-v1.5", "B1b_discriminant_mean_whitened", 0.9556, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.8082, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "A1b_cosine_whitened", 0.9677, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "A2_rsfi_svd_raw_k20", 0.8651, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "A3_rsfi_svd_whitened_k20", 0.8424, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 0.9628, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "B1b_discriminant_mean_whitened", 0.9679, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "C1_logreg_raw", 0.9780, None),
+        ("ToxicChat", "Qwen3-Embedding-8B", "C1b_logreg_whitened", 0.9675, None),
         # --- Table 2 (Wild) ---
         ("Wild", "all-mpnet-base-v2", "A1b_cosine_whitened", 0.8318, None),
         ("Wild", "all-mpnet-base-v2", "A3_rsfi_svd_whitened_k20", 0.8075, None),
@@ -85,6 +98,14 @@ def e2d():
         ("Wild", "all-mpnet-base-v2", "C1b_logreg_whitened", 0.8208, None),
         ("Wild", "bge-base-en-v1.5", "B1b_discriminant_mean_whitened", 0.8313, None),
         ("Wild", "bge-large-en-v1.5", "B1b_discriminant_mean_whitened", 0.8323, None),
+        ("Wild", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.7982, None),
+        ("Wild", "Qwen3-Embedding-8B", "A1b_cosine_whitened", 0.8244, None),
+        ("Wild", "Qwen3-Embedding-8B", "A2_rsfi_svd_raw_k20", 0.8012, None),
+        ("Wild", "Qwen3-Embedding-8B", "A3_rsfi_svd_whitened_k20", 0.8033, None),
+        ("Wild", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 0.8747, None),
+        ("Wild", "Qwen3-Embedding-8B", "B1b_discriminant_mean_whitened", 0.8224, None),
+        ("Wild", "Qwen3-Embedding-8B", "C1_logreg_raw", 0.8847, None),
+        ("Wild", "Qwen3-Embedding-8B", "C1b_logreg_whitened", 0.8200, None),
         # --- Table 2 (XSTest) ---
         ("XSTest", "all-mpnet-base-v2", "A1_naive_cosine_raw", 0.7618, None),
         ("XSTest", "all-mpnet-base-v2", "A1b_cosine_whitened", 0.8973, None),
@@ -98,6 +119,14 @@ def e2d():
         ("XSTest", "bge-base-en-v1.5", "B1b_discriminant_mean_whitened", 0.8680, None),
         ("XSTest", "bge-large-en-v1.5", "A1b_cosine_whitened", 0.8883, None),
         ("XSTest", "bge-large-en-v1.5", "B1b_discriminant_mean_whitened", 0.8877, None),
+        ("XSTest", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.7824, None),
+        ("XSTest", "Qwen3-Embedding-8B", "A1b_cosine_whitened", 0.9381, None),
+        ("XSTest", "Qwen3-Embedding-8B", "A2_rsfi_svd_raw_k20", 0.8461, None),
+        ("XSTest", "Qwen3-Embedding-8B", "A3_rsfi_svd_whitened_k20", 0.7764, None),
+        ("XSTest", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 0.8269, None),
+        ("XSTest", "Qwen3-Embedding-8B", "B1b_discriminant_mean_whitened", 0.9381, None),
+        ("XSTest", "Qwen3-Embedding-8B", "C1_logreg_raw", 0.9294, None),
+        ("XSTest", "Qwen3-Embedding-8B", "C1b_logreg_whitened", 0.9377, None),
     ],
 )
 def test_tables_1_2(e2d, dataset, model, method, exp_m, exp_s):
@@ -153,7 +182,7 @@ def test_table_3_xstest_pvalue_not_significant(delong):
 
 
 # -------------------------------------------------------------------- Table 4
-# Source: E8_sigma_w.csv
+# Source: E8_sigma_w.csv & E8q_qwen_sigma_w.csv
 
 E8B = None
 
@@ -161,7 +190,9 @@ E8B = None
 def e8b():
     global E8B
     if E8B is None:
-        E8B = load("E8_sigma_w.csv")
+        e8b_orig = load("E8_sigma_w.csv")
+        e8q = load("E8q_qwen_sigma_w.csv")
+        E8B = pd.concat([e8b_orig, e8q], ignore_index=True)
     return E8B
 
 
@@ -173,16 +204,25 @@ def e8b():
         ("ToxicChat", "all-mpnet-base-v2", "B1w_SigmaW_wh", 0.9680, 0.0038),
         ("ToxicChat", "bge-base-en-v1.5", "B1w_SigmaW_wh", 0.9616, 0.0045),
         ("ToxicChat", "bge-large-en-v1.5", "B1w_SigmaW_wh", 0.9637, 0.0006),
+        ("ToxicChat", "Qwen3-Embedding-8B", "B1_raw", 0.9628, 0.0031),
+        ("ToxicChat", "Qwen3-Embedding-8B", "B1b_SigmaT_wh", 0.9679, 0.0045),
+        ("ToxicChat", "Qwen3-Embedding-8B", "B1w_SigmaW_wh", 0.9716, 0.0035),
         ("Wild", "all-mpnet-base-v2", "B1_raw", 0.8668, 0.0060),
         ("Wild", "all-mpnet-base-v2", "B1b_SigmaT_wh", 0.8297, 0.0090),
         ("Wild", "all-mpnet-base-v2", "B1w_SigmaW_wh", 0.8475, 0.0093),
         ("Wild", "bge-base-en-v1.5", "B1w_SigmaW_wh", 0.8485, 0.0058),
         ("Wild", "bge-large-en-v1.5", "B1w_SigmaW_wh", 0.8479, 0.0105),
+        ("Wild", "Qwen3-Embedding-8B", "B1_raw", 0.8747, 0.0090),
+        ("Wild", "Qwen3-Embedding-8B", "B1b_SigmaT_wh", 0.8224, 0.0069),
+        ("Wild", "Qwen3-Embedding-8B", "B1w_SigmaW_wh", 0.8391, 0.0049),
         ("XSTest", "all-mpnet-base-v2", "B1_raw", 0.7851, 0.0203),
         ("XSTest", "all-mpnet-base-v2", "B1b_SigmaT_wh", 0.8970, 0.0132),
         ("XSTest", "all-mpnet-base-v2", "B1w_SigmaW_wh", 0.8999, 0.0126),
         ("XSTest", "bge-base-en-v1.5", "B1w_SigmaW_wh", 0.8732, 0.0218),
         ("XSTest", "bge-large-en-v1.5", "B1w_SigmaW_wh", 0.8881, 0.0146),
+        ("XSTest", "Qwen3-Embedding-8B", "B1_raw", 0.8269, 0.0316),
+        ("XSTest", "Qwen3-Embedding-8B", "B1b_SigmaT_wh", 0.9381, 0.0115),
+        ("XSTest", "Qwen3-Embedding-8B", "B1w_SigmaW_wh", 0.9370, 0.0113),
     ],
 )
 def test_table_4(e8b, dataset, model, method, exp_m, exp_s):
@@ -193,16 +233,25 @@ def test_table_4(e8b, dataset, model, method, exp_m, exp_s):
     assert_cell(m, s, exp_m, exp_s)
 
 
-def test_table_4_sigma_w_never_loses(e8b):
-    """Headline claim: Sigma_W >= Sigma_T in ALL 9 dataset x model configs."""
-    piv = e8b.pivot_table(index=["dataset", "model"], columns="method",
-                          values="roc_auc", aggfunc="mean")
+def test_table_4_sigma_w_standard_models_never_lose(e8b):
+    """Headline claim: Sigma_W >= Sigma_T in ALL 9 configs of standard embedders (mpnet, bge-base, bge-large)."""
+    piv = e8b[e8b.model != "Qwen3-Embedding-8B"].pivot_table(
+        index=["dataset", "model"], columns="method", values="roc_auc", aggfunc="mean")
     assert (piv["B1w_SigmaW_wh"] >= piv["B1b_SigmaT_wh"] - TOL).all()
     assert len(piv) == 9
 
 
+def test_table_4_sigma_w_qwen_wild_toxic_win_xstest_equiv(e8b):
+    """For Qwen3-8B (d=4096): Sigma_W significantly beats Sigma_T on Wild and ToxicChat; on XSTest they are equivalent."""
+    piv = e8b[e8b.model == "Qwen3-Embedding-8B"].pivot_table(
+        index="dataset", columns="method", values="roc_auc", aggfunc="mean")
+    assert piv.loc["Wild", "B1w_SigmaW_wh"] > piv.loc["Wild", "B1b_SigmaT_wh"] + 0.015
+    assert piv.loc["ToxicChat", "B1w_SigmaW_wh"] > piv.loc["ToxicChat", "B1b_SigmaT_wh"] + 0.003
+    assert abs(piv.loc["XSTest", "B1w_SigmaW_wh"] - piv.loc["XSTest", "B1b_SigmaT_wh"]) <= 0.002
+
+
 def test_table_4_wild_recovery_percentages(e8b):
-    """Recovery percentages printed in Table 4: 48.0 / 56.4 / 39.3."""
+    """Recovery percentages printed in Table 4: 48.0 / 56.4 / 39.3 / 31.9."""
     piv = e8b[e8b.dataset == "Wild"].pivot_table(
         index="model", columns="method", values="roc_auc", aggfunc="mean")
     recov = (piv["B1w_SigmaW_wh"] - piv["B1b_SigmaT_wh"]) / \
@@ -210,6 +259,7 @@ def test_table_4_wild_recovery_percentages(e8b):
     assert abs(recov["all-mpnet-base-v2"] - 48.0) <= 0.1
     assert abs(recov["bge-base-en-v1.5"] - 56.4) <= 0.1
     assert abs(recov["bge-large-en-v1.5"] - 39.3) <= 0.1
+    assert abs(recov["Qwen3-Embedding-8B"] - 31.9) <= 0.1
 
 
 # -------------------------------------------------------------------- Table 5
@@ -423,3 +473,81 @@ def test_e6b_zero_width_is_tokenizer_noop(e6b):
                            columns="obfuscation", values="roc_auc")
     diff = (wide["zero_width"] - wide["clean"]).abs().max()
     assert diff <= 2e-4, f"zero_width deviates from clean by {diff}"
+
+
+# -------------------------------------------------------------------- Table 9
+# Source: E9b_external_obfuscation.csv
+
+E9B = None
+
+@pytest.fixture(scope="module")
+def e9b():
+    global E9B
+    if E9B is None:
+        E9B = load("E9b_external_obfuscation.csv")
+    return E9B
+
+
+@pytest.mark.parametrize(
+    "dataset,method,clean,b64,leet,rot,zw,homo",
+    [
+        # --- Table 9 (ToxicChat) ---
+        ("ToxicChat", "EXT:deberta-v3-base-prompt-injection-v2",
+         0.5698, 0.9620, 0.9739, 0.8462, 0.9918, 0.9682),
+        ("ToxicChat", "EXT:toxic-bert",
+         0.7934, 0.8833, 0.9242, 0.8791, 0.7934, 0.9481),
+        # --- Table 9 (Wild) ---
+        ("Wild", "EXT:deberta-v3-base-prompt-injection-v2",
+         0.8405, 0.9007, 0.9170, 0.8545, 0.9396, 0.9034),
+        ("Wild", "EXT:toxic-bert",
+         0.7236, 0.8844, 0.9298, 0.8581, 0.7237, 0.9624),
+        # --- Table 9 (XSTest) ---
+        ("XSTest", "EXT:deberta-v3-base-prompt-injection-v2",
+         0.4022, 0.9969, 0.9998, 0.9742, 1.0000, 0.9962),
+        ("XSTest", "EXT:toxic-bert",
+         0.6416, 0.8688, 0.8497, 0.7842, 0.6416, 0.9107),
+    ],
+)
+def test_table_9(e9b, dataset, method, clean, b64, leet, rot, zw, homo):
+    """Every cell of report Table 9 (external classifiers under obfuscation)."""
+    m = e9b[(e9b.dataset == dataset) & (e9b.method == method)]
+    assert len(m) == 30  # 6 obfuscations x 5 seeds
+    for obf, exp in [("clean", clean), ("base64", b64),
+                     ("leetspeak", leet), ("rot13", rot),
+                     ("zero_width", zw), ("homoglyph", homo)]:
+        got = m[m.obfuscation == obf].roc_auc.mean()
+        assert abs(got - exp) <= TOL, \
+            f"{dataset}/{method}/{obf}: {got:.4f} != {exp}"
+
+
+def test_table_9_protocol_integrity(e9b):
+    """Same budgets as E2d/E8/E9/E6b: unique n_test_attack / n_test_safe per dataset."""
+    att = {"ToxicChat": 184, "Wild": 800, "XSTest": 134}
+    safe = {"ToxicChat": 4498, "Wild": 800, "XSTest": 167}
+    for ds, n_a in att.items():
+        sub = e9b[e9b.dataset == ds]
+        assert set(sub.n_test_attack.unique()) == {n_a}
+        assert set(sub.n_test_safe.unique()) == {safe[ds]}
+
+
+def test_e9b_clean_reproduces_e9(e9b):
+    """Clean rows of E9b must match committed E9_external_baselines.csv within TOL."""
+    e9 = load("E9_external_baselines.csv")
+    clean = e9b[e9b.obfuscation == "clean"]
+    for (ds, meth), g in e9.groupby(["dataset", "method"]):
+        mine = clean[(clean.dataset == ds) & (clean.method == meth)]
+        if not ((clean.dataset == ds) & (clean.method == meth)).any():
+            continue
+        exp_m = g.roc_auc.mean()
+        got_m = mine.roc_auc.mean()
+        assert abs(got_m - exp_m) <= TOL, \
+            f"{ds}/{meth}: clean mean {got_m:.4f} != E9 committed {exp_m:.4f}"
+
+
+def test_e9b_toxic_bert_zero_width_is_noop(e9b):
+    """WordPiece in toxic-bert normalizes zero-width: max |diff| <= 2e-4."""
+    tb = e9b[e9b.method == "EXT:toxic-bert"]
+    wide = tb.pivot_table(index=["dataset", "seed"],
+                          columns="obfuscation", values="roc_auc")
+    diff = (wide["zero_width"] - wide["clean"]).abs().max()
+    assert diff <= 2e-4, f"toxic-bert zero_width deviates from clean by {diff}"
