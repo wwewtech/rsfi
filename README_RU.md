@@ -103,18 +103,19 @@ $$ \mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mat
  ┃ ┣ 📜 filter.py       # RSFIFilter (1D) и MultiDimensionalRSFIFilter (k-D)
  ┃ ┣ 📜 engine.py       # ProductionSFIEngine и SFIBenchmarkRunner
  ┃ ┗ 📂 datasets        # Модули загрузки и потоковой обработки датасетов
- ┣ 📂 tests             # Набор unit-тестов и консистенс-тестов (185 passed)
- ┃ ┣ 📜 test_report_consistency.py # 185 автотестов консистентности Таблиц 1–9 отчёта
+ ┣ 📂 tests             # Набор unit-тестов и консистенс-тестов (200 passed)
+ ┃ ┣ 📜 test_report_consistency.py # 200 автотестов консистентности Таблиц 1–10 отчёта
  ┃ ┣ 📜 test_geometry.py    # Верификация аксиом римановой геометрии
  ┃ ┣ 📜 test_whitening.py   # Инварианты ZCA fit/transform
  ┃ ┣ 📜 test_filter.py      # Разложение Пифагора и ортонормальность QR
  ┃ ┗ 📜 test_math_advanced.py  # Граничные стресс-тесты, сингулярности, rank-deficiency
- ┣ 📂 experiments        # Исполняемые скрипты экспериментов (E1–E10, E6b, E8, E9, E9b)
+ ┣ 📂 experiments        # Исполняемые скрипты экспериментов (E1–E10, E6b, E6c, E8, E9, E9b)
  ┃ ┣ 📜 E2d_safe_aware_multidataset.py  # Safe-Aware батарея на 3 датасетах
  ┃ ┣ 📜 E2e_qwen_extension.py           # Прогон Qwen3-8B (4096d)
  ┃ ┣ 📜 E8_sigma_w_whitening.py         # Внутриклассовое отбеливание Sigma_W
  ┃ ┣ 📜 E9_external_baselines.py        # Сравнение с DeBERTa-v3 и Toxic-BERT
  ┃ ┣ 📜 E6b_obfuscation_boundary.py     # Карта деградации под 6 обфускациями (1620 строк)
+ ┃ ┣ 📜 E6c_defense_aware_adaptive_attack.py # Адаптивный противник и перенос на детекторы (E6c)
  ┃ ┗ 📜 E9b_external_obfuscation.py     # Обфускация на внешних классификаторах (180 строк)
  ┣ 📂 data               # Экспериментальные данные и результаты
  ┃ ┣ 📂 results          # Выходные CSV-файлы с per-seed метриками

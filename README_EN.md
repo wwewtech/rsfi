@@ -103,18 +103,19 @@ All values are strictly verified by CSV logs in `data/results/` and covered by 1
  ┃ ┣ 📜 filter.py       # RSFIFilter (1D) & MultiDimensionalRSFIFilter (k-D)
  ┃ ┣ 📜 engine.py       # ProductionSFIEngine & SFIBenchmarkRunner
  ┃ ┗ 📂 datasets        # Dataset loaders and stream processing modules
- ┣ 📂 tests             # Test suite (185 passed)
- ┃ ┣ 📜 test_report_consistency.py # 185 automated consistency tests for Tables 1–9
+ ┣ 📂 tests             # Test suite (200 passed)
+ ┃ ┣ 📜 test_report_consistency.py # 200 automated consistency tests for Tables 1–10
  ┃ ┣ 📜 test_geometry.py    # Riemannian axiom verification
  ┃ ┣ 📜 test_whitening.py   # ZCA fit/transform invariants
  ┃ ┣ 📜 test_filter.py      # Pythagorean decomposition & QR orthonormality
  ┃ ┗ 📜 test_math_advanced.py  # Boundary stress, singularities, rank-deficiency
- ┣ 📂 experiments        # Executable experiment scripts (E1–E10, E6b, E8, E9, E9b)
+ ┣ 📂 experiments        # Executable experiment scripts (E1–E10, E6b, E6c, E8, E9, E9b)
  ┃ ┣ 📜 E2d_safe_aware_multidataset.py  # Multi-dataset Safe-Aware battery
  ┃ ┣ 📜 E2e_qwen_extension.py           # Qwen3-8B (4096d) multi-dataset evaluation
  ┃ ┣ 📜 E8_sigma_w_whitening.py         # Within-class Sigma_W whitening
  ┃ ┣ 📜 E9_external_baselines.py        # Comparison with DeBERTa-v3 and Toxic-BERT
  ┃ ┣ 📜 E6b_obfuscation_boundary.py     # Obfuscation degradation map (1620 rows)
+ ┃ ┣ 📜 E6c_defense_aware_adaptive_attack.py # Defense-aware adaptive adversary (E6c)
  ┃ ┗ 📜 E9b_external_obfuscation.py     # External classifier obfuscation (180 rows)
  ┣ 📂 data               # Data and experimental outputs
  ┃ ┣ 📂 results          # Benchmark output CSVs with per-seed metrics

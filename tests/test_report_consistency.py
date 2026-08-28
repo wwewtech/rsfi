@@ -550,4 +550,63 @@ def test_e9b_toxic_bert_zero_width_is_noop(e9b):
     wide = tb.pivot_table(index=["dataset", "seed"],
                           columns="obfuscation", values="roc_auc")
     diff = (wide["zero_width"] - wide["clean"]).abs().max()
-    assert diff <= 2e-4, f"toxic-bert zero_width deviates from clean by {diff}"
+    assert diff <= 2e-4, f"toxic-bert zero_width deviates from clean by {diff}"
+
+
+# ---------------------------------------------------------------- Table 10
+# Source: E6c_defense_aware_adaptive_attack.csv (Defense-Aware Adaptive Adversaries)
+
+@pytest.fixture(scope="module")
+def e6c():
+    return load("E6c_defense_aware_adaptive_attack.csv")
+
+
+@pytest.mark.parametrize(
+    "dataset,scenario,exp_perturb,exp_sim,exp_a1,exp_a2,exp_b1,exp_b1w,exp_c1,exp_deb,exp_tb",
+    [
+        # --- Table 10 (Wild, all-mpnet-base-v2) ---
+        ("Wild", "clean", 0.000, 1.000, 0.7967, 0.7961, 0.8860, 0.8573, 0.8953, 0.8512, 0.7154),
+        ("Wild", "adaptive_word_greedy_target_B1", 0.005, 0.986, 0.7908, 0.7866, 0.8829, 0.8492, 0.8922, 0.8523, 0.7162),
+        ("Wild", "adaptive_affix_target_B1", 0.000, 0.728, 0.6396, 0.6420, 0.8237, 0.7512, 0.8413, 0.8909, 0.5512),
+        ("Wild", "adaptive_combined_target_B1", 0.001, 0.730, 0.6354, 0.6355, 0.8225, 0.7490, 0.8401, 0.8911, 0.5509),
+        ("Wild", "adaptive_word_greedy_target_B1w", 0.019, 0.943, 0.7700, 0.7600, 0.8706, 0.8011, 0.8748, 0.8555, 0.7213),
+        # --- Table 10 (ToxicChat, all-mpnet-base-v2) ---
+        ("ToxicChat", "clean", 0.000, 1.000, 0.9102, 0.9310, 0.9474, 0.9676, 0.9672, 0.5842, 0.8297),
+        ("ToxicChat", "adaptive_word_greedy_target_B1", 0.029, 0.930, 0.8900, 0.9105, 0.9360, 0.9508, 0.9569, 0.6109, 0.8217),
+        ("ToxicChat", "adaptive_affix_target_B1", 0.000, 0.701, 0.8683, 0.8802, 0.9233, 0.9150, 0.9463, 0.8306, 0.6914),
+        ("ToxicChat", "adaptive_combined_target_B1", 0.010, 0.745, 0.8445, 0.8512, 0.9113, 0.8974, 0.9372, 0.8336, 0.6887),
+        ("ToxicChat", "adaptive_word_greedy_target_B1w", 0.063, 0.884, 0.8790, 0.8966, 0.9234, 0.9080, 0.9407, 0.6347, 0.8203),
+        # --- Table 10 (XSTest, all-mpnet-base-v2) ---
+        ("XSTest", "clean", 0.000, 1.000, 0.7448, 0.8422, 0.7741, 0.9004, 0.8487, 0.3965, 0.7097),
+        ("XSTest", "adaptive_word_greedy_target_B1", 0.045, 0.945, 0.7178, 0.8009, 0.7545, 0.8723, 0.8322, 0.4038, 0.6732),
+        ("XSTest", "adaptive_affix_target_B1", 0.000, 0.616, 0.5259, 0.4401, 0.6482, 0.8121, 0.7484, 0.9739, 0.4393),
+        ("XSTest", "adaptive_combined_target_B1", 0.000, 0.618, 0.5250, 0.4385, 0.6476, 0.8108, 0.7479, 0.9740, 0.4394),
+        ("XSTest", "adaptive_word_greedy_target_B1w", 0.099, 0.878, 0.6549, 0.7218, 0.7088, 0.7549, 0.7558, 0.3901, 0.6764),
+    ],
+)
+def test_table_10_roc_auc(e6c, dataset, scenario, exp_perturb, exp_sim,
+                          exp_a1, exp_a2, exp_b1, exp_b1w, exp_c1, exp_deb, exp_tb):
+    """Verify Table 10 ROC-AUC and perturbation/similarity stats for all-mpnet-base-v2."""
+    sub = e6c[(e6c.dataset == dataset) & (e6c.model == "all-mpnet-base-v2") & (e6c.attack_scenario == scenario)]
+    assert len(sub) == 40  # 8 methods x 5 seeds
+    
+    meta_sub = sub[sub.evaluated_method == "B1_discriminant_mean_raw"]
+    got_perturb = meta_sub.mean_perturb_ratio.mean()
+    got_sim = meta_sub.mean_semantic_sim.mean()
+    assert abs(got_perturb - exp_perturb) <= 1e-3, f"perturb {got_perturb:.3f} != {exp_perturb:.3f}"
+    assert abs(got_sim - exp_sim) <= 2e-3, f"sim {got_sim:.3f} != {exp_sim:.3f}"
+    
+    method_map = {
+        "A1_naive_cosine_raw": exp_a1,
+        "A2_rsfi_svd_raw_k20": exp_a2,
+        "B1_discriminant_mean_raw": exp_b1,
+        "B1w_SigmaW_wh": exp_b1w,
+        "C1_logreg_raw": exp_c1,
+        "deberta-v3-prompt-injection-v2": exp_deb,
+        "toxic-bert": exp_tb,
+    }
+    for meth_name, exp_val in method_map.items():
+        got_val = sub[sub.evaluated_method == meth_name].roc_auc.mean()
+        assert abs(got_val - exp_val) <= TOL, \
+            f"{dataset}/{scenario}/{meth_name}: {got_val:.4f} != {exp_val:.4f}"
+
