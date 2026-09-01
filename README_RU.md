@@ -8,8 +8,8 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests Passing](https://img.shields.io/badge/Tests-185%20Passed-brightgreen.svg)]()
-[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-~0.003%20ms%20(GPU)-orange.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-210%20Passed-brightgreen.svg)]()
+[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-~0.003%20ms%20(micro--bench)-orange.svg)]()
 [![VAK Readiness](https://img.shields.io/badge/VAK%20Readiness-K2%20Verified-blueviolet.svg)]()
 
 </div>
@@ -75,7 +75,7 @@ $$ \mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mat
 
 ## 📊 Сравнительный анализ (ROC-AUC на 3 датасетах, 5 сидов, mean ± std)
 
-Все числа строго подтверждены CSV-файлами в `data/results/` и проверены 185 автотестами:
+Все числа строго подтверждены CSV-файлами в `data/results/` и проверены 210 автотестами (187 в `tests/test_report_consistency.py` + 10 RSFI-тестов в `tests/test_e11_rsfi.py` + 13 юнит-тестов геометрии/отбеливания/RSFI-фильтра):
 
 | Метод / Модель | Тип / Память | Задержка скоринга | Wild (Гетерогенный) | ToxicChat (Гомогенный) | XSTest (Омонимический) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -103,8 +103,9 @@ $$ \mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mat
  ┃ ┣ 📜 filter.py       # RSFIFilter (1D) и MultiDimensionalRSFIFilter (k-D)
  ┃ ┣ 📜 engine.py       # ProductionSFIEngine и SFIBenchmarkRunner
  ┃ ┗ 📂 datasets        # Модули загрузки и потоковой обработки датасетов
- ┣ 📂 tests             # Набор unit-тестов и консистенс-тестов (200 passed)
- ┃ ┣ 📜 test_report_consistency.py # 200 автотестов консистентности Таблиц 1–10 отчёта
+ ┣ 📂 tests             # Набор unit-тестов и консистенс-тестов (210 passed)
+ ┃ ┣ 📜 test_report_consistency.py # 187 автотестов консистенс-тестов Таблиц 1–10 отчёта
+ ┃ ┣ 📜 test_e11_rsfi.py        # 10 автотестов RSFI-валидации (Section 6.4)
  ┃ ┣ 📜 test_geometry.py    # Верификация аксиом римановой геометрии
  ┃ ┣ 📜 test_whitening.py   # Инварианты ZCA fit/transform
  ┃ ┣ 📜 test_filter.py      # Разложение Пифагора и ортонормальность QR
@@ -149,7 +150,7 @@ pip install -e .
 ### Запуск тестов
 
 ```bash
-# Запуск полного набора из 185 тестов (включая консистенс-сьют всех таблиц отчёта)
+# Запуск полного набора из 210 тестов (187 параметризованных консистенс-тестов в test_report_consistency.py + 10 RSFI-тестов в test_e11_rsfi.py + 13 юнит-тестов геометрии/whitening/фильтра):
 pytest tests/ -v
 
 # Только математические стресс-тесты геометрии

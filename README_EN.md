@@ -8,8 +8,8 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![License MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests Passing](https://img.shields.io/badge/Tests-185%20Passed-brightgreen.svg)]()
-[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-~0.003%20ms%20(GPU)-orange.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-210%20Passed-brightgreen.svg)]()
+[![Latency Sub-Millisecond](https://img.shields.io/badge/Latency-~0.003%20ms%20(micro--bench)-orange.svg)]()
 [![VAK Readiness](https://img.shields.io/badge/VAK%20Readiness-K2%20Verified-blueviolet.svg)]()
 
 </div>
@@ -75,7 +75,7 @@ $$ \mathbf{v} = \text{Log}_S(\mathbf{y}) = \frac{\theta}{\sin \theta} \bigl(\mat
 
 ## 📊 State-of-the-Art Comparison (ROC-AUC across 3 Datasets, 5 Seeds, mean ± std)
 
-All values are strictly verified by CSV logs in `data/results/` and covered by 185 automated tests:
+All values are strictly verified by CSV logs in `data/results/` and covered by 210 automated tests (187 in `tests/test_report_consistency.py` + 10 RSFI tests in `tests/test_e11_rsfi.py` + 13 unit tests for geometry/whitening/RSFI filter):
 
 | Method / Model | Type / Memory | Scoring Latency | Wild (Heterogeneous) | ToxicChat (Homogeneous) | XSTest (Homonymy) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -103,8 +103,9 @@ All values are strictly verified by CSV logs in `data/results/` and covered by 1
  ┃ ┣ 📜 filter.py       # RSFIFilter (1D) & MultiDimensionalRSFIFilter (k-D)
  ┃ ┣ 📜 engine.py       # ProductionSFIEngine & SFIBenchmarkRunner
  ┃ ┗ 📂 datasets        # Dataset loaders and stream processing modules
- ┣ 📂 tests             # Test suite (200 passed)
- ┃ ┣ 📜 test_report_consistency.py # 200 automated consistency tests for Tables 1–10
+ ┣ 📂 tests             # Test suite (210 passed)
+ ┃ ┣ 📜 test_report_consistency.py # 187 automated consistency tests for Tables 1–10
+ ┃ ┣ 📜 test_e11_rsfi.py        # 10 RSFI validation tests (Section 6.4 of the report)
  ┃ ┣ 📜 test_geometry.py    # Riemannian axiom verification
  ┃ ┣ 📜 test_whitening.py   # ZCA fit/transform invariants
  ┃ ┣ 📜 test_filter.py      # Pythagorean decomposition & QR orthonormality
@@ -149,7 +150,7 @@ pip install -e .
 ### Running Tests
 
 ```bash
-# Run full suite of 185 tests (including consistency validation for all report tables)
+# Run full suite of 210 tests (187 parameterized consistency tests in test_report_consistency.py + 10 RSFI tests in test_e11_rsfi.py + 13 geometry/whitening/filter unit tests):
 pytest tests/ -v
 
 # Run only advanced mathematical stress tests
