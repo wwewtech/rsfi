@@ -12,10 +12,10 @@
 
 6. Zou, A., et al. (2023). Representation Engineering: A Top-Down Approach to AI Transparency. *arXiv preprint arXiv:2310.01405*. Ссылка: https://arxiv.org/abs/2310.01405
 7. Arditi, A., et al. (2024). Refusal in Language Models Is Mediated by a Single Direction. *NeurIPS 2024*. Ссылка: https://arxiv.org/abs/2406.11717
-8. Liu, C., et al. (2024). TrajGuard: Streaming Hidden-state Trajectory Detection for Decoding-time Jailbreak Defense. *Findings of ACL*. Ссылка: https://aclanthology.org/2024.findings-acl.1337/
+8. Liu, C., et al. (2026). TrajGuard: Streaming Hidden-state Trajectory Detection for Decoding-time Jailbreak Defense. *Findings of ACL 2026*. Ссылка: https://arxiv.org/abs/2604.07727
 9. Belo, R. C., Guimarães, M., & Soares, C. (2025). Keep Calm and Avoid Harmful Content: Concept Alignment and Latent Manipulation Towards Safer Answers. *arXiv preprint arXiv:2510.12672*. Ссылка: https://arxiv.org/abs/2510.12672
 10. Fonseca, J., Bell, A., & Stoyanovich, J. (2025). SAFENUDGE: Safeguarding Large Language Models in Real-time with Tunable Safety-Performance Trade-offs. *EMNLP 2025*. Ссылка: https://github.com/joaopfonseca/SafeNudge
-11. Sang, Y., et al. (2025). Zero-Shot Embedding Drift Detection (ZEDD) for Prompt Injection Attacks in Large Language Models. Ссылка: https://arxiv.org/abs/2601.12359
+11. Sekar, A., Agarwal, M., Sharma, R., et al. (2026). Zero-Shot Embedding Drift Detection: A Lightweight Defense Against Prompt Injections in LLMs. *NeurIPS 2025 Lock-LLM Workshop*. Ссылка: https://arxiv.org/abs/2601.12359
 12. Rzepka, R., Muraji, S., & Obayashi, A. (2026). Evaluating Lightweight Embedding Guardrails for Cost-Effective Misalignment Mitigation in Export Control Dialog System. *LaCATODA 2026, CEUR Workshop Proceedings*. Ссылка: https://ceur-ws.org/
 13. Lee, J., et al. (2025). ConSol: Sequential Probability Ratio Testing to Find Consistent LLM Reasoning Paths Efficiently. *arXiv preprint arXiv:2503.17587*. Ссылка: https://arxiv.org/abs/2503.17587
 14. Morandi, A. (2026). Sequential Consensus for Multi-Agent LLM Debates: A Wald-SPRT Compute Governor with Calibration-Based Failure Detection. *arXiv preprint arXiv:2605.19193*. Ссылка: https://arxiv.org/abs/2605.19193
@@ -43,26 +43,25 @@
 36. Li, M. Z., et al. (2025). Tracing the Representation Geometry of Language Models from Pretraining to Post-Training. Ссылка: https://openreview.net/forum?id=Ax2yRhCQr1
 37. MASteer: Multi-Agent Adaptive Steer Strategy for End-to-End LLM Trustworthiness Repair. *arXiv preprint arXiv:2508.06963*. Ссылка: https://arxiv.org/abs/2508.06963
 38. Kudriashov, S. (2025). Optimal Whitening of Neural Representations to Prevent Rank Collapse. Master's thesis, HSE University. Ссылка: https://www.hse.ru/en/edu/vkr/1054020602
-39. Scrivens, A. (2026). Design-Time Safety Contracts via Vector Symbolic Architectures (Holographic Invariant Storage). *arXiv preprint arXiv:2603.13558*. Ссылка: https://arxiv.org/abs/2603.13558
-40. Kang, M., et al. (2025). PolyGuard: Massive Multi-Domain Safety Policy-Grounded Guardrail Dataset. *NeurIPS 2025*. Ссылка: https://neurips.cc/
-41. Wu, Y., et al. (2025). PSG-Agent: Personality-Aware Safety Guardrail for LLM-based Agents. *arXiv preprint arXiv:2509.23614*. Ссылка: https://arxiv.org/abs/2509.23614
-42. Yang, Y., et al. (2025). MrGuard: A Multilingual Reasoning Guardrail for Universal LLM Safety. *EMNLP 2025*. Ссылка: https://arxiv.org/abs/2504.15241
-43. THU-KEG. (2025). SafetyNeuron: Finding Safety Neurons in Large Language Models. *NeurIPS 2025*. Ссылка: https://github.com/THU-KEG/SafetyNeuron
+39. Kang, M., et al. (2025). PolyGuard: Massive Multi-Domain Safety Policy-Grounded Guardrail Dataset. *NeurIPS 2025*. Ссылка: https://neurips.cc/
+40. Wu, Y., et al. (2025). PSG-Agent: Personality-Aware Safety Guardrail for LLM-based Agents. *arXiv preprint arXiv:2509.23614*. Ссылка: https://arxiv.org/abs/2509.23614
+41. Yang, Y., et al. (2025). MrGuard: A Multilingual Reasoning Guardrail for Universal LLM Safety. *EMNLP 2025*. Ссылка: https://arxiv.org/abs/2504.15241
+42. THU-KEG. (2025). SafetyNeuron: Finding Safety Neurons in Large Language Models. *NeurIPS 2025*. Ссылка: https://github.com/THU-KEG/SafetyNeuron
 
 ### Раздел 3: Индустриальные фреймворки и документация продакшен-систем
 
-44. Guardrails AI. Guardrails AI Python Framework & Hub Validator Ecosystem. Ссылка: https://www.guardrailsai.com/docs
-45. Lakera AI. Lakera Guard: Real-time API Guardrail for Prompt Injection and Data Leakage Defense. Ссылка: https://www.lakera.ai/docs
-46. OpenAI. OpenAI Moderation API Reference Guide. Ссылка: https://platform.openai.com/docs/guides/moderation
-47. .TXT / Normal Computing. Outlines: Structured Text Generation and Output Control for LLMs. Ссылка: https://github.com/dottxt-ai/outlines
-48. SentinelGuard (sentinel-ai). Lightweight Security Framework for LLMs. Ссылка: https://github.com/MaxwellCalkin/sentinel-ai
-49. Lakera AI. PINT Benchmark: Prompt Injection Test Benchmark. Ссылка: https://github.com/lakeraai/PINT
-50. OBLITERATUS: Mechanistic Interpretability Research Toolkit. Ссылка: https://github.com/elder-plinius/OBLITERATUS
+43. Guardrails AI. Guardrails AI Python Framework & Hub Validator Ecosystem. Ссылка: https://www.guardrailsai.com/docs
+44. Lakera AI. Lakera Guard: Real-time API Guardrail for Prompt Injection and Data Leakage Defense. Ссылка: https://www.lakera.ai/docs
+45. OpenAI. OpenAI Moderation API Reference Guide. Ссылка: https://platform.openai.com/docs/guides/moderation
+46. .TXT / Normal Computing. Outlines: Structured Text Generation and Output Control for LLMs. Ссылка: https://github.com/dottxt-ai/outlines
+47. SentinelGuard (sentinel-ai). Lightweight Security Framework for LLMs. Ссылка: https://github.com/MaxwellCalkin/sentinel-ai
+48. Lakera AI. PINT Benchmark: Prompt Injection Test Benchmark. Ссылка: https://github.com/lakeraai/PINT
+49. OBLITERATUS: Mechanistic Interpretability Research Toolkit. Ссылка: https://github.com/elder-plinius/OBLITERATUS
 
 ### Раздел 4: Исследования сообщества, блоги и статьи (Hugging Face, Alignment Forum, и т.д.)
 
-51. Labonne, M. (2024). Uncensor any LLM with abliteration. *Hugging Face Technical Blog*. Ссылка: https://huggingface.co/blog/mlabonne/abliteration
-52. Arditi, A., & Obeso, O. (2023). Refusal mechanisms: initial experiments with Llama-2-7b-chat. *AI Alignment Forum*. Ссылка: https://www.alignmentforum.org/posts/refusal-mechanisms-llama-2
-53. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
-54. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
-55. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/
+50. Labonne, M. (2024). Uncensor any LLM with abliteration. *Hugging Face Technical Blog*. Ссылка: https://huggingface.co/blog/mlabonne/abliteration
+51. Arditi, A., & Obeso, O. (2023). Refusal mechanisms: initial experiments with Llama-2-7b-chat. *AI Alignment Forum*. Ссылка: https://www.alignmentforum.org/posts/refusal-mechanisms-llama-2
+52. Grimjim. ORBA: Orthogonal Reflection Bounded Ablation — A Geometrically Exact Detour in Directional Activation Editing. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
+53. Grimjim. Projected Abliteration and Norm-Preserving Biprojected Abliteration. *Hugging Face Articles*. Ссылка: https://huggingface.co/blog/grimjim
+54. Turner, A. M., et al. Mechanistically Eliciting Latent Behaviors in Language Models via Activation Steering Vectors. Ссылка: https://lesswrong.com/

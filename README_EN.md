@@ -126,7 +126,7 @@ All values are strictly verified by CSV logs in `data/results/` and covered by 2
    ┣ 📜 RESEARCH_REPORT.md  # Comprehensive research report (Tables 1–9), VAK K2 verdict, audit chronicle
    ┣ 📜 math.md             # Theoretical derivations and semantic geometry
    ┣ 📜 ARCHITECTURE.md     # System architecture (Rust API Gateway), Three-Clocks, EU AI Act
-   ┣ 📜 source.md           # 55 verified academic and industry sources
+   ┣ 📜 source.md           # 54 verified academic and industry sources
    ┗ 📂 audit_history       # Historical audit logs and protocols
 ```
 
@@ -150,7 +150,7 @@ pip install -e .
 ### Running Tests
 
 ```bash
-# Run full suite of 210 tests (187 parameterized consistency tests in test_report_consistency.py + 10 RSFI tests in test_e11_rsfi.py + 13 geometry/whitening/filter unit tests):
+# Run full suite of 210 tests (187 consistency tests in test_report_consistency.py + 10 RSFI tests in test_e11_rsfi.py + 13 geometry/whitening/filter unit tests):
 pytest tests/ -v
 
 # Run only advanced mathematical stress tests
