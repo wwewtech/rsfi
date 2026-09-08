@@ -36,6 +36,10 @@ Results from E1-E10 experiments (REALISTIC_ROADMAP.md) will appear here:
 - `E2b_k_sweep_toxicchat.csv`, `E2c_discriminant_diagnosis.csv` - Supporting diagnostics for the Safe-Aware discriminant family (k-sweep, per-class geometry).
 - `E11_rsfi_vs_b1.csv`, `E11_rsfi_tangent_space.csv`, `E11_rsfi_alpha_sweep.csv`, `E11_rsfi_operating_point.csv` - RSFI tangent-space validation: rank equivalence with B1, linear-limit alpha sweep, multi-vector SVD variant, operating point.
 - `E10_*.csv` - Statistical significance
+- `E12_advbench_harmbench_e2d.csv` - 4th-block data extension (E12): full E2d battery (A/B/C) + E8 Sigma_W block on two NEW dataset pairs: AdvBench (520 harmful, Zou 2023) + 400 Alpaca-safe and HarmBench (400, Mazeika 2024) + 400 Alpaca-safe. 4 embedders x 2 datasets x 5 seeds, leakage-free. Key result: on HarmBench raw cosine degrades (A1 = 0.84-0.95) while all discriminant variants saturate to 0.997-1.0 (+15.7 pp for Qwen).
+- `E12_advbench_harmbench_delong.csv` - Union of E2d + E8 DeLong pairs for E12.
+- `E12_advbench_harmbench_delong_sigma_w.csv` - E8-style pairs only (B1w vs B1b / B1b vs B1 / B1w vs B1).
+- `E12_mode_diagnostics.csv` - Per dataset x embedder geometry (cos(mu_mal, mu_safe), intra-class homogeneity).
 
 All new experiments follow honest evaluation:
 1. No test set leakage
