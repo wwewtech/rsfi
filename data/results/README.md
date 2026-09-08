@@ -40,6 +40,9 @@ Results from E1-E10 experiments (REALISTIC_ROADMAP.md) will appear here:
 - `E12_advbench_harmbench_delong.csv` - Union of E2d + E8 DeLong pairs for E12.
 - `E12_advbench_harmbench_delong_sigma_w.csv` - E8-style pairs only (B1w vs B1b / B1b vs B1 / B1w vs B1).
 - `E12_mode_diagnostics.csv` - Per dataset x embedder geometry (cos(mu_mal, mu_safe), intra-class homogeneity).
+- `E13_cross_domain_transfer.csv` - MAXIMALLY OBJECTIVE generalization: reference pools drawn ONLY from the train dataset, scored against ALL other datasets (Wild/ToxicChat/XSTest/AdvBench/HarmBench) without re-calibration. 4 embedders x 5 seeds; records roc_auc, pr_auc, tpr@fpr1/5%, and DELONG_B1w_vs_A1 rows for every (train, target) pair.
+- `E13_cross_domain_summary.csv` - Per (train_ds, target_ds, embedder, method) mean/std AUC over seeds for E13.
+- `E14_operating_point_e12.csv` - Operating-point / calibration audit on AdvBench+HarmBench: TPR@FPR 1/5/10%, FPR@TPR 90%, Brier and ECE-10 (calibrated on reference pools only, no test leakage).
 
 All new experiments follow honest evaluation:
 1. No test set leakage

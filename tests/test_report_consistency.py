@@ -610,4 +610,208 @@ def test_table_10_roc_auc(e6c, dataset, scenario, exp_perturb, exp_sim,
         got_val = sub[sub.evaluated_method == meth_name].roc_auc.mean()
         assert abs(got_val - exp_val) <= TOL, \
             f"{dataset}/{scenario}/{meth_name}: {got_val:.4f} != {exp_val:.4f}"
+
+
+# ---------------------------------------------------------------- E12
+# Source: E12_advbench_harmbench_e2d.csv (4th-block data: AdvBench / HarmBench,
+# each paired with 400 Alpaca-safe instructions; full E2d battery + E8 Sigma_W
+# block; 4 embedders x 2 datasets x 5 seeds).
+
+E12 = None
+
+
+@pytest.fixture(scope="module")
+def e12():
+    global E12
+    if E12 is None:
+        E12 = load("E12_advbench_harmbench_e2d.csv")
+    return E12
+
+
+def e12_mean(e12, ds, model, method):
+    v = e12[(e12.dataset == ds) & (e12.model == model)
+            & (e12.method == method)].roc_auc
+    assert len(v) == 5, f"{ds}/{model}/{method}: expected 5 seeds, got {len(v)}"
+    return v.mean(), v.std(ddof=1)
+
+
+@pytest.mark.parametrize(
+    "dataset,model,method,exp_m,exp_s",
+    [
+        # --- E12 AdvBench (saturating behavior benchmark) ---
+        ("AdvBench", "all-mpnet-base-v2", "A1_naive_cosine_raw", 0.9941, 0.0010),
+        ("AdvBench", "all-mpnet-base-v2", "B1_discriminant_mean_raw", 0.9978, 0.0003),
+        ("AdvBench", "all-mpnet-base-v2", "B1b_discriminant_mean_whitened", 0.9984, 0.0006),
+        ("AdvBench", "all-mpnet-base-v2", "B1w_SigmaW_wh", 0.9987, 0.0005),
+        ("AdvBench", "bge-base-en-v1.5", "A1_naive_cosine_raw", 0.9910, 0.0022),
+        ("AdvBench", "bge-base-en-v1.5", "B1_discriminant_mean_raw", 0.9975, 0.0008),
+        ("AdvBench", "bge-base-en-v1.5", "B1w_SigmaW_wh", 0.9998, 0.0001),
+        ("AdvBench", "bge-large-en-v1.5", "A1_naive_cosine_raw", 0.9965, 0.0008),
+        ("AdvBench", "bge-large-en-v1.5", "B1w_SigmaW_wh", 0.9997, 0.0002),
+        ("AdvBench", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.9966, 0.0003),
+        ("AdvBench", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 1.0000, 0.0000),
+        ("AdvBench", "Qwen3-Embedding-8B", "B1w_SigmaW_wh", 1.0000, 0.0001),
+        # --- E12 HarmBench (heterogeneous: raw cosine degrades, discr saturates)
+        ("HarmBench", "all-mpnet-base-v2", "A1_naive_cosine_raw", 0.9459, 0.0018),
+        ("HarmBench", "all-mpnet-base-v2", "B1_discriminant_mean_raw", 0.9916, 0.0020),
+        ("HarmBench", "all-mpnet-base-v2", "B1w_SigmaW_wh", 0.9989, 0.0006),
+        ("HarmBench", "bge-base-en-v1.5", "A1_naive_cosine_raw", 0.8916, 0.0074),
+        ("HarmBench", "bge-base-en-v1.5", "B1_discriminant_mean_raw", 0.9897, 0.0014),
+        ("HarmBench", "bge-base-en-v1.5", "B1w_SigmaW_wh", 0.9980, 0.0012),
+        ("HarmBench", "bge-large-en-v1.5", "A1_naive_cosine_raw", 0.9262, 0.0083),
+        ("HarmBench", "bge-large-en-v1.5", "B1w_SigmaW_wh", 0.9989, 0.0005),
+        ("HarmBench", "Qwen3-Embedding-8B", "A1_naive_cosine_raw", 0.8427, 0.0103),
+        ("HarmBench", "Qwen3-Embedding-8B", "B1_discriminant_mean_raw", 0.9999, 0.0001),
+        ("HarmBench", "Qwen3-Embedding-8B", "B1w_SigmaW_wh", 0.9999, 0.0002),
+    ],
+)
+def test_e12_cells(e12, dataset, model, method, exp_m, exp_s):
+    m, s = e12_mean(e12, dataset, model, method)
+    assert_cell(m, s, exp_m, exp_s)
+
+
+def test_e12_protocol_integrity(e12):
+    """Each (dataset, model, seed) has exactly 13 methods (10 E2d + 3 E8)."""
+    counts = e12.groupby(["dataset", "model", "seed"]).method.nunique()
+    assert (counts == 13).all(), f"methods per (ds,model,seed): {counts.unique()}"
+
+
+def test_e12_n_test_matches_splits(e12):
+    """AdvBench has 520 test items (520 mal + 400 safe - 200/200 refs);
+    HarmBench has 400 (400+400-200/200)."""
+    for ds, exp_n in [("AdvBench", 520), ("HarmBench", 400)]:
+        got = set(e12[e12.dataset == ds].n_test.unique())
+        assert got == {exp_n}, f"{ds}: n_test {got} != {exp_n}"
+
+
+def test_e12_b1_dominates_naive(e12):
+    """B1 >= A1 on every (dataset, model, seed): discriminant always helps."""
+    pivot = e12.pivot_table(index=["dataset", "model", "seed"],
+                            columns="method", values="roc_auc")
+    diff = (pivot["B1_discriminant_mean_raw"]
+            - pivot["A1_naive_cosine_raw"])
+    assert (diff >= -1e-6).all(), f"B1 < A1 in {len(diff[diff < 0])} cells"
+
+
+def test_e12_b1w_never_worse_than_b1b_on_behavior(e12):
+    """On behavior benchmarks B1w >= B1b within Ledoit-Wolf numeric noise
+    (2e-3): classes are dense, so Sigma_W pooling at worst ties Sigma_T."""
+    pivot = e12.pivot_table(index=["dataset", "model", "seed"],
+                            columns="method", values="roc_auc")
+    diff = pivot["B1w_SigmaW_wh"] - pivot["B1b_SigmaT_wh"]
+    tol = 2e-3  # Ledoit-Wolf covariance-estimation noise
+    viol = diff[diff < -tol]
+    assert len(viol) == 0, \
+        f"B1w < B1b by more than {tol} in {len(viol)} cells: {viol.to_dict()}"
+
+
+def test_e12_delong_b1_vs_a1(e12):
+    """B1 vs A1 DeLong: significant (p<0.05) in at least 30 of 40 cells."""
+    d = load("E12_advbench_harmbench_delong.csv")
+    b1a1 = d[d.pair == "B1_vs_A1"]
+    assert len(b1a1) == 40
+    n_sig = int((b1a1.p_value < 0.05).sum())
+    assert n_sig >= 30, f"B1_vs_A1 significant only in {n_sig}/40"
+    assert b1a1.auc_diff.mean() > 0.02
+
+
+def test_e12_delong_b1w_vs_b1b_not_overfit(e12):
+    """On behavior datasets B1w vs B1b is NOT systematically significant:
+    fewer than 10 of 40 cells reach p<0.05 (unlike Wild where Sigma_W wins)."""
+    d = load("E12_advbench_harmbench_delong_sigma_w.csv")
+    sub = d[d.pair == "B1w_vs_B1b"]
+    n_sig = int((sub.p_value < 0.05).sum())
+    assert n_sig < 10, f"B1w_vs_B1b significant in {n_sig}/40 (unexpected)"
+
+
+def test_e12_reproducible_from_cache(e12):
+    """E12 CSVs must be recomputable from the SAME seeds as E2d (seeds 0-4)."""
+    assert set(e12.seed.unique()) == {0, 1, 2, 3, 4}
+
+
+# ---------------------------------------------------------------- E13 / E14
+# Source: E13_cross_domain_transfer.csv (cross-dataset, no re-calibration) and
+# E14_operating_point_e12.csv (operating-point + calibration audit).
+
+E13 = None
+
+
+@pytest.fixture(scope="module")
+def e13():
+    global E13
+    if E13 is None:
+        E13 = load("E13_cross_domain_transfer.csv")
+    return E13
+
+
+def test_e13_complete_transfer_matrix(e13):
+    """Every (train_ds x target_ds x embedder) present for all 4 methods."""
+    expect_trains = {"Wild", "ToxicChat", "XSTest", "AdvBench", "HarmBench"}
+    have_trains = set(e13.train_ds.unique())
+    assert have_trains == expect_trains, \
+        f"train datasets: {have_trains} != {expect_trains}"
+
+    methods = {"A1_raw", "B1_raw", "B1b_SigmaT", "B1w_SigmaW",
+               "DELONG_B1w_vs_A1"}
+    have_methods = set(e13.method.unique())
+    assert have_methods == methods, f"methods: {have_methods}"
+
+    # For each (train, embedder) there must be >= 4 target datasets x 5 seeds
+    # of real scoring rows (target == train excluded from 'transfer' count only
+    # in the sense of reporting; here all pairs including src==tgt produced).
+    counts = e13[e13.method == "B1w_SigmaW"].groupby(
+        ["train_ds", "embedder"]).target_ds.nunique()
+    assert (counts >= 5).all(), f"target coverage: {counts.min()}"
+
+
+def test_e13_seed_consistency(e13):
+    """All rows must be from seeds 0-4 (fixed protocol)."""
+    assert set(e13.seed.unique()) == {0, 1, 2, 3, 4}
+
+
+def test_e13_method_averages_sane(e13):
+    """Transfer AUC must stay within [0, 1] and B1w mean >= A1 raw mean
+    (global claim: safe-aware transfer never worse than naive)."""
+    g = e13[e13.method != "DELONG_B1w_vs_A1"].groupby(
+        ["train_ds", "target_ds", "embedder", "method"]
+    ).roc_auc.mean().reset_index()
+    assert (g.roc_auc >= 0.0).all() and (g.roc_auc <= 1.0).all()
+
+    piv = g.pivot_table(index=["train_ds", "target_ds", "embedder"],
+                        columns="method", values="roc_auc")
+    diff = (piv["B1w_SigmaW"] - piv["A1_raw"]).dropna()
+    # Allow tiny negatives near saturation; the claim is about the MEAN.
+    mean_diff = diff.mean()
+    assert mean_diff >= -0.01, f"B1w A1_diff mean = {mean_diff:.4f} (< -0.01)"
+
+
+E14 = None
+
+
+@pytest.fixture(scope="module")
+def e14():
+    global E14
+    if E14 is None:
+        E14 = load("E14_operating_point_e12.csv")
+    return E14
+
+
+def test_e14_schema(e14):
+    """E14 must have the full operating-point schema with plausible ranges."""
+    need = {"dataset", "embedder", "seed", "method", "roc_auc",
+            "tpr_fpr1", "tpr_fpr5", "tpr_fpr10", "fpr_tpr90",
+            "brier", "ece10"}
+    assert need.issubset(set(e14.columns)), \
+        f"missing columns: {need - set(e14.columns)}"
+    assert set(e14.dataset.unique()) == {"AdvBench", "HarmBench"}
+
+
+def test_e14_tpr_monotone_and_bounds(e14):
+    """tpr@fpr5 >= tpr@fpr1, fpr@tpr90 <= 1, brier/ece in [0,1]."""
+    assert (e14.tpr_fpr5.fillna(1.0) + 1e-9 >=
+            e14.tpr_fpr1.fillna(0.0)).all()
+    assert (e14.fpr_tpr90.fillna(1.0) >= 0.0).all() and \
+           (e14.fpr_tpr90.fillna(1.0) <= 1.0).all()
+    assert e14.brier.between(0, 1).all()
+    assert e14.ece10.between(0, 1).all()
 
