@@ -30,8 +30,11 @@ Results from E1-E10 experiments (REALISTIC_ROADMAP.md) will appear here:
 - `E7_*.csv` - Head-to-head baselines
 - `E8_sigma_w.csv`, `E8q_qwen_sigma_w.csv` - Pooled within-class whitening ($\Sigma_W$) vs total whitening ($\Sigma_T$) across 4 embedders x 3 datasets x 5 seeds.
 - `E8_knn.csv` - 1-class vs 2-class k-NN semantic codebook baselines across 3 embedders x 3 datasets x 5 seeds.
+- `E8_delong_tests.csv`, `E8q_qwen_delong_tests.csv` - Paired DeLong tests (B1 vs A1, B1b vs B1) per seed, standard embedders and Qwen3-8B.
 - `E9_external_baselines.csv` - External published classifiers (ProtectAI deberta-v3-prompt-injection-v2 & unitary/toxic-bert) on shared leakage-free splits.
 - `E9b_external_obfuscation.csv` - External published classifiers evaluated under 6 test-time obfuscations across all 3 datasets x 5 seeds.
+- `E2b_k_sweep_toxicchat.csv`, `E2c_discriminant_diagnosis.csv` - Supporting diagnostics for the Safe-Aware discriminant family (k-sweep, per-class geometry).
+- `E11_rsfi_vs_b1.csv`, `E11_rsfi_tangent_space.csv`, `E11_rsfi_alpha_sweep.csv`, `E11_rsfi_operating_point.csv` - RSFI tangent-space validation: rank equivalence with B1, linear-limit alpha sweep, multi-vector SVD variant, operating point.
 - `E10_*.csv` - Statistical significance
 
 All new experiments follow honest evaluation:
