@@ -850,7 +850,7 @@ def test_e14_summary_consistent_with_per_seed(e14_summary, e14):
         sub = e14[(e14.dataset == row.dataset) &
                   (e14.embedder == row.embedder) &
                   (e14.method == row.method)]
-        # Qwen reduced to 1 seed (N_SEEDS_QWEN=1): no std there, mean still exact.
+        # All embedders incl. Qwen3-8B carry 5 seeds in the committed data.
         assert len(sub) >= 1, f"no per-seed rows for {row}"
         for col in num:
             src = col.replace("mean_", "")
@@ -875,8 +875,7 @@ def test_e14_summary_value_bounds(e14_summary):
         values="mean_roc_auc")
     assert (piv["B1w_SigmaW"] >= piv["A1_raw"]).all()
     assert (piv["B1_raw"] >= piv["A1_raw"]).all()
-    # Non-degenerate std for the 5-seed embedders (Qwen has 1 seed -> std=0/NaN).
-    five_seed = e14_summary[e14_summary.embedder != "Qwen3-Embedding-8B"]
-    assert (five_seed.std_roc_auc >= 0).all()
+    # Non-degenerate std: 5 seeds for every embedder incl. Qwen3-8B.
+    assert (e14_summary.std_roc_auc >= 0).all()
 
 

@@ -19,6 +19,7 @@ Outputs:
     fpr_tpr90, brier, ece10
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -43,7 +44,11 @@ ROOT = Path(__file__).parent.parent
 OUT = ROOT / "data" / "results"
 N_REF = 200
 N_SEEDS = 5
-N_SEEDS_QWEN = 1
+# Committed E14 data uses 5 seeds for ALL embedders incl. Qwen3-8B.
+# Embeddings are cache-driven (emb_cache/*.npy); a FRESH Qwen (re-)encode is
+# GPU/offload-heavy, so a throttled CPU fallback exists:
+#   set N_SEEDS_QWEN=1 in the environment before running.
+N_SEEDS_QWEN = int(os.environ.get("N_SEEDS_QWEN", "5"))
 QWEN_MODEL = "Qwen/Qwen3-Embedding-8B"
 
 EMBEDDERS = [
@@ -169,7 +174,6 @@ def run():
     df.to_csv(OUT / "E14_operating_point_e12.csv", index=False)
 
     print("\n=== Operating points (mean over seeds) ===", flush=True)
-    print("\n=== Operating points (mean over seeds) ===", flush=True)
     g = df.groupby(["dataset", "embedder", "method"])[
         ["roc_auc", "tpr_fpr1", "tpr_fpr5", "fpr_tpr90",
          "brier", "ece10"]].mean()
@@ -201,12 +205,6 @@ def run():
     print("\n=== Aggregated summary ===", flush=True)
     print(sum_df.round(4).to_string(index=False), flush=True)
     print(f"\nSaved -> {OUT / 'E14_operating_point_summary.csv'}", flush=True)
-    g = df.groupby(["dataset", "embedder", "method"])[
-        ["roc_auc", "tpr_fpr1", "tpr_fpr5", "fpr_tpr90",
-         "brier", "ece10"]].mean()
-    with pd.option_context("display.max_columns", None, "display.width", 220):
-        print(g.round(4).to_string(), flush=True)
-    print(f"\nSaved -> {OUT / 'E14_operating_point_e12.csv'}", flush=True)
 
 
 if __name__ == "__main__":

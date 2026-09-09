@@ -25,11 +25,11 @@
 
 ### 1. E14 — ✅ ВЫПОЛНЕНО (2026-09-09)
 
-- [x] Запустить E14 (все эмбеддеры, CPU; Qwen снижен до 1 сида через `N_SEEDS_QWEN=1`)
+- [x] Запустить E14 (4 эмбеддера × 5 сидов; детерминированно из кэшей emb_cache, GPU для пересчёта не нужен)
 - [x] Сгенерировать per-seed CSV (160 строк: 2 датасета × 4 эмбеддера × seeds × 4 метода)
 - [x] Сгенерировать summary-CSV (32 строки mean±std) через `experiments/generate_e14_summary.py`
 - [x] Тесты E14 в test_report_consistency.py (schema, monotonicity, bounds, summary-consistency)
-- Примечание: Qwen3-Embedding-8B — 1 сид (тяжёлый 4096d на CPU) — отразить в methods/limitations
+- Примечание: Qwen3-Embedding-8B (4096d) — 5 сидов в данных; первичное кодирование требует GPU/offload (~16 ГБ bf16 на 12-ГБ карте), повторный запуск идёт из кэшей. CPU-fallback: `N_SEEDS_QWEN=1`
 
 ### 2. Тесты консистентности E13/E14 — ✅ ВЫПОЛНЕНО (2026-09-09)
 
