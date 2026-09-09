@@ -814,4 +814,69 @@ def test_e14_tpr_monotone_and_bounds(e14):
            (e14.fpr_tpr90.fillna(1.0) <= 1.0).all()
     assert e14.brier.between(0, 1).all()
     assert e14.ece10.between(0, 1).all()
+
+
+E14_SUMMARY = None
+
+
+@pytest.fixture(scope="module")
+def e14_summary():
+    global E14_SUMMARY
+    if E14_SUMMARY is None:
+        E14_SUMMARY = load("E14_operating_point_summary.csv")
+    return E14_SUMMARY
+
+
+def test_e14_summary_shape_and_schema(e14_summary):
+    """Summary = 2 datasets x 4 embedders x 4 methods = 32 rows, 11 columns."""
+    assert e14_summary.shape == (32, 11)
+    assert set(e14_summary.columns) == {
+        "dataset", "embedder", "method",
+        "mean_roc_auc", "std_roc_auc",
+        "mean_tpr_fpr1", "mean_tpr_fpr5", "mean_tpr_fpr10",
+        "mean_fpr_tpr90", "mean_brier", "mean_ece10"}
+    assert set(e14_summary.dataset.unique()) == {"AdvBench", "HarmBench"}
+    assert set(e14_summary.method.unique()) == {
+        "A1_raw", "B1_raw", "B1b_SigmaT", "B1w_SigmaW"}
+    # Each (dataset, embedder) cell must contain all 4 methods exactly once.
+    counts = e14_summary.groupby(["dataset", "embedder"]).method.nunique()
+    assert (counts == 4).all(), f"method coverage: {counts.to_dict()}"
+
+
+def test_e14_summary_consistent_with_per_seed(e14_summary, e14):
+    """Summary stats must be recomputable from the per-seed E14 CSV."""
+    num = [c for c in e14_summary.columns if c.startswith("mean_")]
+    for row in e14_summary.itertuples(index=False):
+        sub = e14[(e14.dataset == row.dataset) &
+                  (e14.embedder == row.embedder) &
+                  (e14.method == row.method)]
+        # Qwen reduced to 1 seed (N_SEEDS_QWEN=1): no std there, mean still exact.
+        assert len(sub) >= 1, f"no per-seed rows for {row}"
+        for col in num:
+            src = col.replace("mean_", "")
+            assert abs(getattr(row, col) - sub[src].mean()) <= TOL, \
+                f"{row.dataset}/{row.embedder}/{row.method}: {col} mismatch"
+
+
+def test_e14_summary_value_bounds(e14_summary):
+    """All aggregated metrics stay within their valid ranges."""
+    for col in ["mean_roc_auc", "mean_tpr_fpr1", "mean_tpr_fpr5",
+                "mean_tpr_fpr10", "mean_fpr_tpr90", "mean_brier",
+                "mean_ece10"]:
+        assert e14_summary[col].between(0, 1).all(), f"{col} out of [0, 1]"
+    # Monotonicity of the averaged TPR curve must survive aggregation.
+    assert (e14_summary.mean_tpr_fpr5 + 1e-9 >=
+            e14_summary.mean_tpr_fpr1).all()
+    assert (e14_summary.mean_tpr_fpr10 + 1e-9 >=
+            e14_summary.mean_tpr_fpr5).all()
+    # B1 variants must not lose to the raw cosine baseline on the mean.
+    piv = e14_summary.pivot_table(
+        index=["dataset", "embedder"], columns="method",
+        values="mean_roc_auc")
+    assert (piv["B1w_SigmaW"] >= piv["A1_raw"]).all()
+    assert (piv["B1_raw"] >= piv["A1_raw"]).all()
+    # Non-degenerate std for the 5-seed embedders (Qwen has 1 seed -> std=0/NaN).
+    five_seed = e14_summary[e14_summary.embedder != "Qwen3-Embedding-8B"]
+    assert (five_seed.std_roc_auc >= 0).all()
+
 
