@@ -757,11 +757,25 @@ def test_e13_complete_transfer_matrix(e13):
     assert have_methods == methods, f"methods: {have_methods}"
 
     # For each (train, embedder) there must be >= 4 target datasets x 5 seeds
-    # of real scoring rows (target == train excluded from 'transfer' count only
-    # in the sense of reporting; here all pairs including src==tgt produced).
+    # of real scoring rows. The in-domain diagonal is EXCLUDED from the test
+    # set when it degenerates (audit 2026-09: ref-pool/test seed collision on
+    # the diagonal inflated in-domain AUC to ~0.999; now ref is setdiff'd from
+    # test, and the XSTest diagonal is skipped entirely because all 200
+    # positives fit into the 2x200 reference pool -> empty positive class).
     counts = e13[e13.method == "B1w_SigmaW"].groupby(
         ["train_ds", "embedder"]).target_ds.nunique()
-    assert (counts >= 5).all(), f"target coverage: {counts.min()}"
+    assert (counts >= 4).all(), f"target coverage: {counts.min()}"
+
+    # At least one leak-free in-domain diagonal must be present and clean:
+    # for present diagonals, B1-family must still be near the top.
+    diag = e13[(e13.method == "B1w_SigmaW")
+               & (e13.train_ds == e13.target_ds)]
+    assert diag.train_ds.nunique() >= 1, "no in-domain diagonal rows"
+    # Leak audit: a leak-free diagonal cannot be indistinguishable from 1.0
+    # saturation across ALL train datasets (that was the leaky signature).
+    g = diag.groupby("train_ds").roc_auc.mean()
+    assert g.max() <= 0.9999 or g[g < 0.99].size >= 2, \
+        f"diagonal AUCs look leaky: {g.to_dict()}"
 
 
 def test_e13_seed_consistency(e13):

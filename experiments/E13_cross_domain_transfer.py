@@ -9,7 +9,8 @@ distributions without re-calibration.
 Design (leakage-free, deterministic):
   - Reference pools (200/200) are ALWAYS drawn from the TRAIN dataset only.
   - Test scoring uses the FULL evaluation set of the TRANSFER dataset
-    (balanced cap 400 for very large pools).
+    (balanced cap 400 for very large pools); for the in-domain case
+    (target == train) the reference pool is EXCLUDED from test (leak-free).
   - 5 fixed seeds -> 5 independent reference pools per (train_ds, embedder).
   - Per seed, the SAME reference pool scores all target datasets, so
     per-seed paired comparisons are valid.
@@ -177,7 +178,29 @@ def main():
                     if not cache_available(tgt_ds, model_id):
                         continue
                     te_emb = get_emb(tgt_ds, te_texts, model_id)
-                    idx = balanced_eval_idx(np.array(te_labels), seed=seed)
+                    te_lab = np.array(te_labels)
+                    if tgt_ds == train_ds:
+                        # In-domain: EXCLUDE the reference pool from the test
+                        # set (leak-free, same semantics as E12/E14 setdiff).
+                        # Audit 2026-09: balanced_eval_idx(seed) selects the
+                        # SAME indices as the ref-pool draw -> 100% overlap,
+                        # inflating in-domain AUC to ~0.999.
+                        te_pos = np.setdiff1d(np.where(te_lab == 1)[0], rm)
+                        te_neg = np.setdiff1d(np.where(te_lab == 0)[0], rs)
+                        # Degenerate cell (e.g. XSTest: all 200 positives fit
+                        # into the ref pool -> empty positive test class).
+                        if len(te_pos) == 0 or len(te_neg) == 0:
+                            print(f"    [skip] {tgt_ds} diag: no held-out "
+                                  f"class members left after ref exclusion")
+                            continue
+                        rng2 = np.random.RandomState(seed)
+                        n_pos = min(len(te_pos), TEST_CAP // 2)
+                        n_neg = min(len(te_neg), TEST_CAP // 2)
+                        pi = rng2.choice(te_pos, n_pos, replace=False)
+                        ni = rng2.choice(te_neg, n_neg, replace=False)
+                        idx = np.concatenate([pi, ni])
+                    else:
+                        idx = balanced_eval_idx(te_lab, seed=seed)
                     y = np.array(te_labels)[idx]
                     Xt = te_emb[idx]
 

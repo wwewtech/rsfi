@@ -39,6 +39,9 @@ from E8_sigma_w_whitening import (  # noqa: E402
 from E13_cross_domain_transfer import (  # noqa: E402
     load_all_datasets, cache_available, get_emb,
 )
+from E12_advbench_harmbench_extension import (  # noqa: E402
+    get_embeddings_any,
+)
 
 ROOT = Path(__file__).parent.parent
 OUT = ROOT / "data" / "results"
@@ -125,7 +128,15 @@ def run():
         for model_id in EMBEDDERS:
             ms = model_id.split("/")[-1]
             if not cache_available(ds_name, model_id):
-                continue
+                if "Qwen3" not in model_id:
+                    # Standard embedders are cache-only (no surprise downloads).
+                    continue
+                # Qwen cache miss: fall back to the exact E12 GPU encoder
+                # (last-token pooling, bf16, device_map=auto with offload),
+                # then cache the result just like the E12 pipeline does.
+                print(f"  [{ds_name}] {ms}: cache miss -> GPU encode via "
+                      f"E12 get_embeddings_any", flush=True)
+                get_embeddings_any(texts, ds_name, model_id)
             print(f"  [{ds_name}] {ms}: loading embeddings...", flush=True)
             emb = get_emb(ds_name, texts, model_id)
             print(f"  [{ds_name}] {ms}: shape={emb.shape}, computing...", flush=True)
@@ -185,7 +196,10 @@ def run():
     sum_rows = []
     for (ds, emb), g2 in df.groupby(["dataset", "embedder"]):
         for meth in ["A1_raw", "B1_raw", "B1b_SigmaT", "B1w_SigmaW"]:
-            sub = g2.loc[g2.index.get_level_values("method") == meth]
+            # NOTE: iteration frames of df.groupby([...]) keep the ORIGINAL
+            # (RangeIndex) index in every pandas version, so the previous
+            # g2.index.get_level_values("method") always raised KeyError.
+            sub = g2[g2["method"] == meth]
             sum_rows.append({
                 "dataset": ds,
                 "embedder": emb,
