@@ -17,7 +17,8 @@ Protocol (identical splits/budgets/seeds as E2d/E8/E9):
     - Calibration uses CLEAN malicious references ONLY (deployment-realistic:
       the whitener/discriminant is fitted before the attacker adapts);
       test attacks are the obfuscated remainder; safe texts stay clean.
-    - Obfuscations: base64, leetspeak, rot13, zero_width, homoglyph
+    - Obfuscations: base64, leetspeak, rot13, zero_width, homoglyph,
+      translit (full-alphabet keyboard layout switch, see obfuscate_translit)
       (+ 'clean' reference rows which MUST reproduce committed E8/E2d means,
       enforced in-script within 5e-4 -> guard against silent protocol drift).
     - Embedders: mpnet / bge-base / bge-large (same 3 as Tables 1-7);
@@ -97,12 +98,49 @@ def obfuscate_homoglyph(text: str) -> str:
     return "".join(homoglyph_map.get(c, c) for c in text)
 
 
+# ---------------------------------------------------------------------------
+# Translit: full-alphabet keyboard layout switch (ЪЦУКЕН <-> QWERTY)
+# ---------------------------------------------------------------------------
+# The viral "translit" jailbreak hypothesis (write the prompt on the "wrong"
+# keyboard layout) is mechanically distinct from the 5 per-symbol transforms
+# above: it swaps the ENTIRE alphabet (e.g. 'how to' -> 'руд ещ' when typed
+# on the Russian layout) rather than substituting chars inside one alphabet.
+# Each Latin char maps to the Cyrillic char on the same physical key and vice
+# versa, so the transform is its own inverse and merges both directions
+# (EN typed as RU means exactly the same transformation as RU typed as EN).
+# Digits and symbols without a counterpart are preserved unchanged.
+
+_LAYOUT_EN_TO_RU = {
+    "q": "\u0439", "w": "\u0446", "e": "\u0443", "r": "\u043a",
+    "t": "\u0435", "y": "\u043d", "u": "\u0433", "i": "\u0448",
+    "o": "\u0449", "p": "\u0437", "[": "\u0445", "]": "\u044a",
+    "a": "\u0444", "s": "\u044b", "d": "\u0432", "f": "\u0430",
+    "g": "\u043f", "h": "\u0440", "j": "\u043e", "k": "\u043b",
+    "l": "\u0434", ";": "\u0436", "'": "\u044d",
+    "z": "\u044f", "x": "\u0447", "c": "\u0441", "v": "\u043c",
+    "b": "\u0438", "n": "\u0442", "m": "\u044c", ",": "\u0431",
+    ".": "\u044e",
+}
+
+_LAYOUT_MAP = {}
+for _en_ch, _ru_ch in _LAYOUT_EN_TO_RU.items():
+    _LAYOUT_MAP[_en_ch] = _ru_ch
+    _LAYOUT_MAP[_en_ch.upper()] = _ru_ch.upper()
+    _LAYOUT_MAP[_ru_ch] = _en_ch
+    _LAYOUT_MAP[_ru_ch.upper()] = _en_ch.upper()
+
+
+def obfuscate_translit(text: str) -> str:
+    return "".join(_LAYOUT_MAP.get(c, c) for c in text)
+
+
 OBFUSCATIONS = {
     "base64": obfuscate_base64,
     "leetspeak": obfuscate_leetspeak,
     "rot13": obfuscate_rot13,
     "zero_width": obfuscate_zero_width,
     "homoglyph": obfuscate_homoglyph,
+    "translit": obfuscate_translit,
 }
 
 import base64

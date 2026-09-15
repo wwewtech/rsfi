@@ -3,14 +3,21 @@
 Эта заметка фиксирует текущие задачи и ограничения проекта RSFI.
 Обновляется при появлении новых результатов или выявленных проблем.
 
-## Статус (2026-09-09)
+## Статус (2026-09-16)
 
 - 5 основных блоков экспериментов: E2/E3/E6/E7/E8/E9/E11 (готовы, воспроизводимы)
 - E12: AdvBench + HarmBench × 4 эмбеддера × 5 сидов — готово
 - E13: кросс-доменная таблица train→target (сводка + деталь) — готово; аудит утечки диагонали исправлен (2026-09-09)
 - E14: operating point и calibration — **готово** (E14_operating_point_e12.csv, 160 строк per-seed +
   E14_operating_point_summary.csv, 32 строки mean±std, генерируется `generate_e14_summary.py`)
-- Тесты: **245 passed, 0 ошибок** (включая тесты E13 transfer-матрицы и E14 per-seed + summary)
+- Тесты: **после добавления E6b-translit и агрегатов — 257 passed, 0 ошибок** (см. сводку в §8 отчёта)
+- **E6b-translit (2026-09-16)**: смена раскладки ЙЦУКЕН↔QWERTY добавлена в `OBFUSCATIONS` как 7-й класс
+  обфускации и прогнана по всем 3 датасетам × 3 эмбеддерам × 6 методам. Результат: самый разрушительный
+  из шести классов — на mpnet+XSTest полярность скора инвертируется (A1 0.0001, A2 0.0006); B1 —
+  наименее хрупкий (средний провал −0.40 против −0.55 у A2). Актуально для §6.1 (Таблица 8, факт 7).
+- **Агрегированная статистика (need.md #4, 2026-09-16)**: `experiments/generate_aggregated_summary.py`
+  пересчитывает из per-seed CSV 95% CI mean AUC и агрегированные DeLong-тесты;
+  выводы `data/results/AGGREGATED_mean_auc_ci.csv` (674 группы) и `AGGREGATED_delong.csv` (196 агрегатов);
 
 ## Что уже есть
 
@@ -43,20 +50,24 @@
 - Добавить секцию "E13: Cross-Domain Transfer" в RESEARCH_REPORT.md
 - Добавить секцию "E14: Operating Point & Calibration" (данные готовы)
 
-### 4. Aggregated results (статистика)
+### 4. Aggregated results (статистика) — ✅ ВЫПОЛНЕНО (2026-09-16)
 
-Сейчас есть per-seed данных (E8_delong_tests, E12 и т.д.), но нет агрегированной статистики.
-Что нужно добавить:
-- Summary-таблицы (в 연구 보고서 или отдельный файл)
-- Агрегированные Delong-тесты
-- Confidence intervals для mean_auc
+- [x] Скрипт `experiments/generate_aggregated_summary.py` (детерминированный пересчёт из per-seed CSV)
+- [x] Summary-таблицы с 95% CI mean AUC: `data/results/AGGREGATED_mean_auc_ci.csv` (674 агрегата:
+      E2d/E2q, E8/E8q, E12, E13 transfer, E13 cross-domain, E14)
+- [x] Агрегированные DeLong-тесты: `data/results/AGGREGATED_delong.csv` (196 групп
+      источник × датасет × модель × пара: wins/ties/losses, средний и максимальный p, доля p<0.05)
+- [x] Секции 4.1 (95% CI) и 4.2 (агрегированные DeLong) в RESEARCH_REPORT.md
+- [x] Тесты `tests/test_aggregated_statistics.py` (пересчёт выборки ячеек из per-seed CSV)
+- Формула CI: $\bar{x} \pm t_{0.975,n-1}\cdot s/\sqrt{n}$ — честно отмечаем, что у насыщенных AUC
+  (~0.9999) верхняя граница может выходить за 1.0 (в отчёте: §4.1, HarmBench/Qwen B1w).
 
-## Мусор / неиспользуемое
+## Мусор / неиспользуемое — ✅ всё обработано (2026-09-16)
 
-- data/reports/monte_carlo_10h_results.csv — удалить (переместить в docs/archive)
-- E5_whitening_stability.csv — пустой, удалить
-- Устаревшие скрипты: honest_eval_final.py, run_*_benchmark.py — перенести в experiments/archive
-- Рисунки: *_2.png — дубликаты, удалить или перенести в docs/archive
+- [x] `data/reports/monte_carlo_10h_results.csv` — удалён ранее (перемещён в docs/archive)
+- [x] `E5_whitening_stability.csv` — пустой, удалён
+- [x] Устаревшие скрипты: `honest_eval_final.py`, `run_*_benchmark.py` — перенесены в experiments/archive
+- [x] Рисунки: `*_2.png` — дубликаты, перенесены в docs/archive/figures_legacy
 
 ## Будущие эксперименты (опционально)
 
@@ -82,4 +93,4 @@
 - Файлы в data/results игнорируются git'ом — при коммите нужен `git add -f`
 - E13 и E14 закоммичены и запушены (коммиты ce78c86, 1a000f3)
 
-Технически готово: E2-E14 (полный цикл экспериментов). Осталось: секции E13/E14 в RESEARCH_REPORT.md.
+Технически готово: E2-E14 + E6b-translit + агрегированная статистика (полный цикл экспериментов).
