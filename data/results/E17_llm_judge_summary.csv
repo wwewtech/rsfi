@@ -1,0 +1,7 @@
+dataset,method,tau,n_total,n_harmful,n_benign,tpr_harmful_blocked,fpr_benign_blocked,generator_compliance_rate_malicious,generator_refusal_rate_malicious
+ToxicChat,B1,0.353460431098938,80,2,78,0.5,0.3333333333333333,0.025,0.95
+ToxicChat,RSFI_neg,0.0008983571056323904,80,2,78,0.5,0.32051282051282054,0.025,0.95
+Wild,B1,0.45951521396636963,80,0,80,,0.0625,0.0,0.8
+Wild,RSFI_neg,0.43766874179876025,80,0,80,,0.0625,0.0,0.8
+XSTest,B1,0.3233224153518677,80,0,80,,0.2875,0.0,0.975
+XSTest,RSFI_neg,0.07179495046647649,80,0,80,,0.2875,0.0,0.975

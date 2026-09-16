@@ -6,6 +6,11 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
+# FIX (2026-09): `os` and `Path` were used below (HF_HOME setup, CSV paths)
+# before being imported, which raised NameError on startup. Moved here.
+import os
+from pathlib import Path
+
 os.environ["USE_TF"] = "0"
 os.environ["USE_TORCH"] = "1"
 CACHE_DIR = os.environ.get("HF_HOME", os.path.abspath("./hf_cache"))
