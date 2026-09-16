@@ -15,11 +15,14 @@ Inputs (data/results/):
   per-seed AUC : E2d_safe_aware_multidataset.csv, E2q_qwen_multidataset.csv,
                  E8_sigma_w.csv, E8q_qwen_sigma_w.csv,
                  E12_advbench_harmbench_e2d.csv,
-                 E13_cross_domain_transfer.csv, E14_operating_point_e12.csv
+                 E13_cross_domain_transfer.csv, E14_operating_point_e12.csv,
+                 E15_defense_aware_e12.csv,
+                 E16_cross_domain_battery.csv   (optional: skipped if absent)
   DeLong       : E2d_delong_tests.csv, E2q_qwen_delong_tests.csv,
                  E8_delong_tests.csv, E8q_qwen_delong_tests.csv,
                  E12_advbench_harmbench_delong.csv,
-                 E12_advbench_harmbench_delong_sigma_w.csv
+                 E12_advbench_harmbench_delong_sigma_w.csv,
+                 E16_cross_domain_delong.csv    (optional: skipped if absent)
 
 Outputs (data/results/):
   AGGREGATED_mean_auc_ci.csv - per group: n_seeds, mean, std, ci_low, ci_high
@@ -114,6 +117,20 @@ def main():
     ci_blocks.append(mean_auc_ci(e12, ["dataset", "model", "method"], "E12"))
     ci_blocks.append(mean_auc_ci(e14, ["dataset", "embedder", "method"], "E14"))
 
+    # NEED.md tasks 1-2 (2026-09): E15 defense-aware on E12 data and E16
+    # cross-domain BigBench battery, integrated when their CSVs exist.
+    try:
+        e15 = load("E15_defense_aware_e12.csv")
+        ci_blocks.append(mean_auc_ci(e15, ["dataset", "model",
+                                           "evaluated_method"], "E15"))
+    except FileNotFoundError:
+        print("[skip] E15_defense_aware_e12.csv not found - run E15 first")
+    try:
+        e16 = load("E16_cross_domain_battery.csv")
+        ci_blocks.append(mean_auc_ci(e16, ["dataset", "model", "method"], "E16"))
+    except FileNotFoundError:
+        print("[skip] E16_cross_domain_battery.csv not found - run E16 first")
+
     # E13 transfer: score rows only (DELONG_B1w_vs_A1 stores a p-value)
     e13s = e13[e13.method != "DELONG_B1w_vs_A1"].copy()
     e13s["dataset"] = e13s["train_ds"] + "->" + e13s["target_ds"]
@@ -140,6 +157,11 @@ def main():
         aggregate_delong(load("E12_advbench_harmbench_delong_sigma_w.csv"),
                          "E12sigmaW"),
     ]
+    try:
+        delong_blocks.append(
+            aggregate_delong(load("E16_cross_domain_delong.csv"), "E16"))
+    except FileNotFoundError:
+        print("[skip] E16_cross_domain_delong.csv not found - run E16 first")
     delong_all = pd.concat([b for b in delong_blocks if not b.empty],
                            ignore_index=True)
     delong_all.to_csv(RESULTS / "AGGREGATED_delong.csv", index=False)

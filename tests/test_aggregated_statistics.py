@@ -62,7 +62,8 @@ def test_ci_schema_and_sources(ci_df):
     need = {"source", "n_seeds", "mean_auc", "std_auc", "ci95_low", "ci95_high"}
     assert need.issubset(set(ci_df.columns))
     assert set(ci_df.source.unique()) == {
-        "E2d/E2q", "E8/E8q", "E12", "E14", "E13_transfer", "E13_crossdomain"}
+        "E2d/E2q", "E8/E8q", "E12", "E14", "E13_transfer", "E13_crossdomain",
+        "E15", "E16"}
     # every 95% CI must strictly bracket the mean
     assert (ci_df.ci95_low <= ci_df.mean_auc).all()
     assert (ci_df.ci95_high >= ci_df.mean_auc).all()
