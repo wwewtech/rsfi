@@ -28,3 +28,19 @@
   Style-homogeneous negative pool (imperative instructions vs. imperative
   malicious behaviors); the original AdvBench/HarmBench authors do not
   publish a harmless class.
+
+## BigBench (BIG-bench collaboration, https://github.com/google/BIG-bench)
+
+- `bigbench/hyperbaton.json`, `bigbench/navigate.json`,
+  `bigbench/temporal_sequences.json` — input lists extracted from the
+  official per-task `task.json` files
+  (https://raw.githubusercontent.com/google/BIG-bench/main/bigbench/benchmark_tasks/<task>/task.json),
+  downloaded 2026-09-16 and cached verbatim for offline reproducibility.
+  E16 uses them as the cross-domain safe pools: 400 inputs per task
+  (hyperbaton 50k / navigate 1k / temporal_sequences 1k examples available),
+  drawn with fixed seed 2001. The tasks are formal-grammar / spatial-planning
+  / schedule-reasoning puzzles with zero semantic overlap with the safety
+  topic. Each cache file is a JSON array of the `examples[].input` strings
+  extracted from the corresponding task.json (the original task.json,
+  including the BIG-bench canary line, remains available at the URL above).
+
