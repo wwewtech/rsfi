@@ -221,6 +221,7 @@ class DefenseAwareAttacker:
         tau_threshold: float = 0.0,
         max_perturb_ratio: float = 0.25,
         min_semantic_sim: float = 0.80,
+        greedy_cap: int = 5,
     ):
         self.model = model
         self.w_disc = w_disc / (np.linalg.norm(w_disc) + 1e-15)
@@ -228,6 +229,11 @@ class DefenseAwareAttacker:
         self.tau = tau_threshold
         self.max_perturb_ratio = max_perturb_ratio
         self.min_semantic_sim = min_semantic_sim
+        # Hard cap on the number of greedy substitutions. Default 5 preserves
+        # the committed E6c/E15 behavior exactly (the literal was `min(5, ...)`
+        # before 2026-09-16); E18 raises it as a documented ablation to test
+        # whether B1b/B1w robustness is a margin artifact or a real invariant.
+        self.greedy_cap = greedy_cap
 
     def score_text(self, text: str) -> Tuple[float, np.ndarray]:
         """Compute score and raw embedding for a single text."""
@@ -290,7 +296,8 @@ class DefenseAwareAttacker:
         ordered_indices = domain_indices + other_indices[:12]
 
         # Greedy iterative replacement
-        max_changes = max(1, min(5, int(len(word_indices) * self.max_perturb_ratio)))
+        max_changes = max(1, min(self.greedy_cap,
+                                 int(len(word_indices) * self.max_perturb_ratio)))
         changed_positions = set()
 
         for _ in range(max_changes):
